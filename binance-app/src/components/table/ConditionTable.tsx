@@ -52,6 +52,17 @@ const ConditionTable = ({ items, onRemove }: Props) => {
             width: 160,
         },
         {
+            field: "nm",
+            headerName: "(N,M)",
+            description: "slow, fast를 계산하는 N과 M변수입니다.",
+            sortable: false,
+            width: 160,
+            editable: false,
+            valueGetter: (params: GridValueGetterParams) =>
+                `(${params.getValue(params.id, "N") || ""}, 
+                 ${params.getValue(params.id, "M" || "")})`,
+        },
+        {
             field: "condition",
             headerName: "조건 상세 내용",
             description: "필터링 할 조건의 상세 내용입니다.",
@@ -59,7 +70,7 @@ const ConditionTable = ({ items, onRemove }: Props) => {
             width: 800,
             editable: false,
             valueGetter: (params: GridValueGetterParams) =>
-                `[${params.getValue(params.id, "period") || ""}분] 
+                `[${params.getValue(params.id, "period") || ""}] 
                  Stochastic slow(${params.getValue(
                      params.id,
                      "findCount" || ""
@@ -98,6 +109,7 @@ const ConditionTable = ({ items, onRemove }: Props) => {
 
     return (
         <div style={{ height: 400, width: "100%" }}>
+            <div>Filter Table</div>
             <DataGrid
                 rows={items}
                 columns={columns}

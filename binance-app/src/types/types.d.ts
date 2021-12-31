@@ -4,10 +4,14 @@ export interface conditionType {
     findCount: number;
     slowK: number;
     slowD: number;
+    N : number;
+    M : number;
     filter: keyof typeof FilterType;
     compareVal : number;
     compareCond : keyof typeof compareType;
 }
+
+export type ValueOf<T> = T[keyof T];
 
 enum FilterType {
     'slow %K',

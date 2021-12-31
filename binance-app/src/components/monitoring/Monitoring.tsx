@@ -2,7 +2,6 @@ import { Button, Grid } from "@material-ui/core";
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../modules";
-import { binanceAPIs, Interval } from "../../utils/binanceAPIs";
 
 const Monitoring = () => {
     let running: boolean = false;
@@ -11,12 +10,11 @@ const Monitoring = () => {
         (state: RootState) => state.conditionReducer
     );
 
+    const searchInfo = () => {
+        alert("조회");
+    };
+
     const saveConditionInfo = async () => {
-        await binanceAPIs.getCandlestick({
-            symbol: 'BTCUSDT',
-            interval: Interval["1m"],
-            limit: 3
-        });
         const result = window.confirm("테이블의 정보를 저장하시겠습니까?");
         if (result) {
             localStorage.setItem(
@@ -30,7 +28,6 @@ const Monitoring = () => {
     const onClickMonitoringStart = () => {
         const result = window.confirm("모니터링을 시작하시겠습니까?");
         if (result) {
-            saveConditionInfo();
             if (running) {
                 alert("이미 동작중인 작업이 존재합니다.");
                 return;
@@ -59,7 +56,7 @@ const Monitoring = () => {
     };
 
     return (
-        <div style={{ marginRight: "10px" }}>
+        <div style={{ marginRight: "10px", marginBottom: "25px" }}>
             <Grid
                 container
                 spacing={2}
@@ -69,6 +66,16 @@ const Monitoring = () => {
                     marginTop: "20px",
                 }}
             >
+                <Grid item>
+                    <Button
+                        size="large"
+                        variant="contained"
+                        style={{ background: "#DDD1C7" }}
+                        onClick={searchInfo}
+                    >
+                        조회
+                    </Button>
+                </Grid>
                 <Grid item>
                     <Button
                         size="large"

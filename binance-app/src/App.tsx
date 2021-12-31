@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createGlobalStyle } from "styled-components";
 import GlobalTemplate from "./components/GlobalTemplate";
 import Monitoring from "./components/monitoring/Monitoring";
+import InfoTable from "./components/table/InfoTable";
 import Title from "./components/Title";
 import ConditionItemContainer from "./container/ConditionItemContainer";
-import TableContainer from "./container/TableContainer";
+import FilterTableContainer from "./container/FilterTableContainer";
+import InfoTableContainer from "./container/InfoTableContainer";
 
 const GlobalStype = createGlobalStyle`
     body{
@@ -19,7 +21,8 @@ const App = () => {
             <Title />
             <GlobalTemplate>
                 <ConditionItemContainer />
-                <TableContainer />
+                <FilterTableContainer />
+                <InfoTableContainer />
                 <Monitoring />
             </GlobalTemplate>
         </div>

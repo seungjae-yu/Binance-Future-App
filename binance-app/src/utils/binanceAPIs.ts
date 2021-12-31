@@ -1,27 +1,6 @@
 import axios from "axios";
+import { Interval } from "../components/condition/ConditionItem";
 import exchangeSymbol from '../config/exchangeInfo.json';
-
-export enum Interval {
-
-    /*
-    m -> minutes; h -> hours; d -> days; w -> weeks; M -> months
-    */
-    '1m',
-    '3m',
-    '5m',
-    '15m',
-    '30m',
-    '1h',
-    '2h',
-    '4h',
-    '6h',
-    '8h',
-    '12h',
-    '1d',
-    '3d',
-    '1w',
-    '1M',
-}
 
 export interface klinesParams {
     /**
@@ -51,14 +30,11 @@ export namespace binanceAPIs {
     }
 
     export async function getCandlestick(params: klinesParams) {
-        //BTCUSDT&interval=1m&limit=30
-        const url = BASE_URI + klines + '?symbol=BTCUSDT&interval=1m&limit=30';
-        //alert(url);
-        let result = await axios.get(url);
-        console.log(JSON.stringify(result));
+        const url = BASE_URI + klines + `?symbol=${params.symbol}&interval=${params.interval}&limit=${params.limit}`;        
+        let result = await axios.get(url);        
         return JSON.stringify(result);
     }
 
-
+    
 
 }

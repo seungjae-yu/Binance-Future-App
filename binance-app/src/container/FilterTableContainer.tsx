@@ -6,7 +6,7 @@ import { RootState } from "../modules";
 import { LoadAction, RemoveAction } from "../modules/condition";
 import { conditionType } from "../types/types";
 
-const TableContainer = () => {
+const FilterTableContainer = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -28,10 +28,10 @@ const TableContainer = () => {
     };
 
     return (
-        <Grid container style={{ marginTop: "20px" }}>
+        <Grid container style={{ marginTop: "20px", marginBottom: "45px" }}>
             <ConditionTable items={conditionItems} onRemove={onRemove} />
         </Grid>
     );
 };
 
-export default TableContainer;
+export default FilterTableContainer;
