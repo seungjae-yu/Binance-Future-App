@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Interval } from "../components/condition/ConditionItem";
 import exchangeSymbol from '../config/exchangeInfo.json';
+import { ExchangeInfo } from "../types/binance";
 
 export interface klinesParams {
     /**
@@ -23,18 +24,18 @@ export namespace binanceAPIs {
     const allExchange = '/fapi/v1/exchangeInfo';
     const klines = '/fapi/v1/klines';
 
-    export function exchangeInfo() {
-        axios.get(BASE_URI + allExchange, {
-
-        });
+    export async function exchangeInfo() {
+        let result = await axios.get(BASE_URI + allExchange, {});
+        const allInfo = JSON.stringify(result);
+        return JSON.parse(allInfo);
     }
 
     export async function getCandlestick(params: klinesParams) {
-        const url = BASE_URI + klines + `?symbol=${params.symbol}&interval=${params.interval}&limit=${params.limit}`;        
-        let result = await axios.get(url);        
+        const url = BASE_URI + klines + `?symbol=${params.symbol}&interval=${params.interval}&limit=${params.limit}`;
+        let result = await axios.get(url);
         return JSON.stringify(result);
     }
 
-    
+
 
 }

@@ -2,6 +2,8 @@ import { Button, Grid } from "@material-ui/core";
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../modules";
+import { ExchangeInfo } from "../../types/binance";
+import { binanceAPIs } from "../../utils/binanceAPIs";
 
 const Monitoring = () => {
     let running: boolean = false;
@@ -10,8 +12,12 @@ const Monitoring = () => {
         (state: RootState) => state.conditionReducer
     );
 
-    const searchInfo = () => {
-        alert("조회");
+    const searchInfo = async () => {
+        let result = await binanceAPIs.exchangeInfo();
+        const info = result.data as ExchangeInfo;
+
+        alert(info.symbols.length);
+
     };
 
     const saveConditionInfo = async () => {

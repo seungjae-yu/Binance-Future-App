@@ -67,14 +67,14 @@ const ConditionTable = ({ items, onRemove }: Props) => {
             headerName: "조건 상세 내용",
             description: "필터링 할 조건의 상세 내용입니다.",
             sortable: false,
-            width: 800,
+            width: 500,
             editable: false,
             valueGetter: (params: GridValueGetterParams) =>
                 `[${params.getValue(params.id, "period") || ""}] 
                  Stochastic slow(${params.getValue(
-                     params.id,
-                     "findCount" || ""
-                 )}, ${params.getValue(
+                    params.id,
+                    "findCount" || ""
+                )}, ${params.getValue(
                     params.id,
                     "slowK" || ""
                 )}, ${params.getValue(
