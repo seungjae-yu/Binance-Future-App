@@ -11,7 +11,7 @@ export interface klinesParams {
     endTime	LONG	NO	
     limit	INT	NO	Default 500; max 1500.
      */
-    symbol: string,
+    symbol: string[],
     interval: Interval,
     startTime?: number,
     endTime?: number,
@@ -24,18 +24,26 @@ export namespace binanceAPIs {
     const allExchange = '/fapi/v1/exchangeInfo';
     const klines = '/fapi/v1/klines';
 
-    export async function exchangeInfo() {
-        let result = await axios.get(BASE_URI + allExchange, {});
-        const allInfo = JSON.stringify(result);
-        return JSON.parse(allInfo);
-    }
+
 
     export async function getCandlestick(params: klinesParams) {
-        const url = BASE_URI + klines + `?symbol=${params.symbol}&interval=${params.interval}&limit=${params.limit}`;
-        let result = await axios.get(url);
-        return JSON.stringify(result);
+        return Promise.all(params.symbol.map(async s => {
+            const url = BASE_URI + klines + `?symbol=${s}&interval=${params.interval}&limit=${params.limit}`;
+            const result = await axios.get(url);
+            return {
+                symbol: s,
+                v: JSON.stringify(result)
+            }
+        }));
+
     }
 
+    export async function getAllSymbolNames() {
+        const result = await axios.get(BASE_URI + allExchange, {});
+        const allInfo = JSON.parse(JSON.stringify(result));
+        const symbols = allInfo.data as ExchangeInfo;
+        return symbols.symbols.map(s => s.symbol) || [];
+    }
 
 
 }

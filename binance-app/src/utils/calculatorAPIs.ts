@@ -63,10 +63,10 @@ export namespace calculatorAPIs {
     export function getPrices(pricesInfo: any[]): prices[] {
         const price = pricesInfo.reduce((prev, cur) => {
             const obj = {
-                open: +cur[1],
-                high: +cur[2],
-                low: +cur[3],
-                close: +cur[4]
+                open: Number.parseFloat(cur[1]),
+                high: Number.parseFloat(cur[2]),
+                low: Number.parseFloat(cur[3]),
+                close: Number.parseFloat(cur[4])
             };
             prev.push(obj);
             return prev;

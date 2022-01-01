@@ -123,7 +123,7 @@ interface Props {
 const ConditionItem = ({ onItemAdd }: Props) => {
     const classes = useStyles();
 
-    const [period, setPeriod] = useState(0); //주기
+    const [period, setPeriod] = useState<Interval>(); //주기
     //const [candle, setCandle] = useState(0); //봉전기준
     const [findCount, setFindCount] = useState(0); //조회갯수
     const [slowK, setSlowK] = useState(0); //slow %K

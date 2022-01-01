@@ -3,7 +3,17 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../modules";
 import { ExchangeInfo } from "../../types/binance";
-import { binanceAPIs } from "../../utils/binanceAPIs";
+import { FastValues } from "../../types/types";
+import { binanceAPIs, klinesParams } from "../../utils/binanceAPIs";
+import { calculatorAPIs } from "../../utils/calculatorAPIs";
+import { Interval } from "../condition/ConditionItem";
+
+interface SearchResult {
+    symbol: string,
+    interval: Interval,
+    limit: number,
+    values: []
+};
 
 const Monitoring = () => {
     let running: boolean = false;
@@ -13,10 +23,30 @@ const Monitoring = () => {
     );
 
     const searchInfo = async () => {
-        let result = await binanceAPIs.exchangeInfo();
-        const info = result.data as ExchangeInfo;
+        let symbols: string[] = await binanceAPIs.getAllSymbolNames();
+        symbols = symbols.slice(0, 2);
 
-        alert(info.symbols.length);
+        const candleSticks = await Promise.all(conditionItems.map(async condition => {
+            const params: klinesParams = {
+                interval: condition.period,
+                symbol: symbols,
+                limit: condition.findCount
+            };
+            return await binanceAPIs.getCandlestick(params);
+        }));
+
+        let datas = [];
+
+        for (let i = 0; i < candleSticks.length; i++) {
+            const data = candleSticks[i].map(c => {
+                return {
+                    symbol: c.symbol,
+                    values: calculatorAPIs.getFastK(JSON.parse(c.v).data as [][], conditionItems[i].M, conditionItems[i].N)
+                }
+            });
+            datas.push(data);
+        }
+        console.log(datas);
 
     };
 
