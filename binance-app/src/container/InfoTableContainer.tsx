@@ -8,13 +8,15 @@ import { LoadAction, RemoveAction } from "../modules/condition";
 import { conditionType } from "../types/types";
 
 const InfoTableContainer = () => {
-    const { conditionItems } = useSelector(
-        (state: RootState) => state.conditionReducer
-    );
+    // const { conditionItems } = useSelector(
+    //     (state: RootState) => state.conditionReducer
+    // );
+
+    const { resultItems } = useSelector((state: RootState) => state.resultReducer)
 
     return (
         <Grid container style={{ marginTop: "20px" }}>
-            <InfoTable items={conditionItems} />
+            <InfoTable items={resultItems} />
         </Grid>
     );
 };

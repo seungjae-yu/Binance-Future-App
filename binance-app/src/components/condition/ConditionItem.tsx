@@ -69,7 +69,7 @@ const periodOptions: periodOption[] = Object.entries(Interval).map(
 );
 
 const filterConditions: filterOption[] = [
-    { title: "slow %D", condition: "slow %D" },
+    // { title: "slow %D", condition: "slow %D" },
     { title: "slow %K", condition: "slow %K" },
 ];
 

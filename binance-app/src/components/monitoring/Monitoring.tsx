@@ -1,7 +1,9 @@
 import { Button, Grid } from "@material-ui/core";
+import _ from "lodash";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../modules";
+import { LoadAction, resultItem } from "../../modules/result";
 import { ExchangeInfo } from "../../types/binance";
 import { FastValues } from "../../types/types";
 import { binanceAPIs, klinesParams } from "../../utils/binanceAPIs";
@@ -22,9 +24,31 @@ const Monitoring = () => {
         (state: RootState) => state.conditionReducer
     );
 
+    const dispatch = useDispatch();
+
     const searchInfo = async () => {
+        const datas = await findDatas();
+        let result: any[][] = [];
+        for (let i = 0; i < datas.length; i++) {
+            if (conditionItems[i].compareCond === '이상') {
+                result.push(datas[i].filter(d => d.values.fastD[d.values.fastD.length - 1] >= conditionItems[i].compareVal).map(m => m.symbol));//(m => ({ symbol: m.symbol, slowK: m.values.fastD[m.values.fastD.length - 1] })));
+            } else if (conditionItems[i].compareCond === '이하') {
+                result.push(datas[i].filter(d => d.values.fastD[d.values.fastD.length - 1] <= conditionItems[i].compareVal).map(m => m.symbol));
+            }
+        }
+
+        let idx = 0;
+        const res = _.intersection(...result).map(m => ({
+            id: idx++,
+            slowK: 0,
+            symbol: m
+        } as resultItem));
+        dispatch(LoadAction(res));
+    };
+
+    const findDatas = async () => {
         let symbols: string[] = await binanceAPIs.getAllSymbolNames();
-        symbols = symbols.slice(0, 2);
+        //symbols = symbols.slice(0, 2);
 
         const candleSticks = await Promise.all(conditionItems.map(async condition => {
             const params: klinesParams = {
@@ -46,9 +70,8 @@ const Monitoring = () => {
             });
             datas.push(data);
         }
-        console.log(datas);
-
-    };
+        return datas;
+    }
 
     const saveConditionInfo = async () => {
         const result = window.confirm("테이블의 정보를 저장하시겠습니까?");

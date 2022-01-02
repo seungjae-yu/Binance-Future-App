@@ -26,3 +26,8 @@ export interface FastValues {
     fastK: number[],
     fastD: number[],
 };
+
+export interface resultType {
+    symbol: string,
+    slowK: number
+};
