@@ -38,20 +38,6 @@ const ConditionTable = ({ items, onRemove }: Props) => {
             editable: true,
         },
         {
-            field: "slowK",
-            headerName: "slow %K",
-            description: "slow k",
-            sortable: false,
-            width: 160,
-        },
-        {
-            field: "slowD",
-            headerName: "slow %D",
-            description: "slow D",
-            sortable: false,
-            width: 160,
-        },
-        {
             field: "nm",
             headerName: "(N,M)",
             description: "slow, fast를 계산하는 N과 M변수입니다.",
@@ -72,14 +58,14 @@ const ConditionTable = ({ items, onRemove }: Props) => {
             valueGetter: (params: GridValueGetterParams) =>
                 `[${params.getValue(params.id, "period") || ""}] 
                  Stochastic slow(${params.getValue(
+                     params.id,
+                     "findCount" || ""
+                 )}, ${params.getValue(
                     params.id,
-                    "findCount" || ""
+                    "N" || ""
                 )}, ${params.getValue(
                     params.id,
-                    "slowK" || ""
-                )}, ${params.getValue(
-                    params.id,
-                    "slowD" || ""
+                    "M" || ""
                 )}) 에서 ${params.getValue(
                     params.id,
                     "filter" || ""
@@ -108,12 +94,12 @@ const ConditionTable = ({ items, onRemove }: Props) => {
     ];
 
     return (
-        <div style={{ height: 400, width: "100%" }}>
+        <div style={{ height: 320, width: "100%" }}>
             <div>Filter Table</div>
             <DataGrid
                 rows={items}
                 columns={columns}
-                pageSize={5}
+                pageSize={4}
                 checkboxSelection
                 disableSelectionOnClick
                 onSelectionModelChange={(ids) => {

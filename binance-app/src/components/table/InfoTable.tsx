@@ -29,7 +29,7 @@ const InfoTable = ({ items }: Props) => {
             <DataGrid
                 rows={items}
                 columns={columns}
-                pageSize={5}
+                pageSize={100}
                 checkboxSelection
                 disableSelectionOnClick
             />

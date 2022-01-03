@@ -1,9 +1,7 @@
 export interface conditionType {
     period: Interval;
     candle?: number;
-    findCount: number;
-    slowK: number;
-    slowD: number;
+    findCount: number;    
     N: number;
     M: number;
     filter: keyof typeof FilterType;

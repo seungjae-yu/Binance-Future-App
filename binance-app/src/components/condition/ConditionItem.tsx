@@ -126,8 +126,6 @@ const ConditionItem = ({ onItemAdd }: Props) => {
     const [period, setPeriod] = useState<Interval>(); //주기
     //const [candle, setCandle] = useState(0); //봉전기준
     const [findCount, setFindCount] = useState(0); //조회갯수
-    const [slowK, setSlowK] = useState(0); //slow %K
-    const [slowD, setSlowD] = useState(0); //slow %D
     const [N, setN] = useState(0);
     const [M, setM] = useState(0);
     const [filter, setFilter] = useState(); //필터 조건
@@ -160,8 +158,6 @@ const ConditionItem = ({ onItemAdd }: Props) => {
             period: period,
             // candle: candle,
             findCount: findCount,
-            slowK: slowK,
-            slowD: slowD,
             N: N,
             M: M,
             filter: filter || "slow %D",
@@ -217,34 +213,6 @@ const ConditionItem = ({ onItemAdd }: Props) => {
                         style={{ margin: "3px" }}
                         onChange={(event) =>
                             setFindCount(parseInt(event.target.value))
-                        }
-                    />
-                </Grid>
-                <Grid item>
-                    <TextField
-                        id="standard-number"
-                        label="slow %K"
-                        type="number"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        style={{ margin: "3px" }}
-                        onChange={(event) =>
-                            setSlowK(parseInt(event.target.value))
-                        }
-                    />
-                </Grid>
-                <Grid item>
-                    <TextField
-                        id="standard-number"
-                        label="slow %D"
-                        type="number"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        style={{ margin: "3px" }}
-                        onChange={(event) =>
-                            setSlowD(parseInt(event.target.value))
                         }
                     />
                 </Grid>
