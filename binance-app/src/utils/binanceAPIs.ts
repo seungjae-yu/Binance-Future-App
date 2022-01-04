@@ -18,13 +18,16 @@ export interface klinesParams {
     limit: number
 }
 
+export interface candleSticType {
+    symbol : string,
+    v : string;
+};
+
 export namespace binanceAPIs {
 
     const BASE_URI = `http://fapi.binance.com`;
     const allExchange = '/fapi/v1/exchangeInfo';
     const klines = '/fapi/v1/klines';
-
-
 
     export async function getCandlestick(params: klinesParams) {
         return Promise.all(params.symbol.map(async s => {

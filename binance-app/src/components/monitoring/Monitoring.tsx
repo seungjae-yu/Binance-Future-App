@@ -4,9 +4,11 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../modules";
 import { LoadAction, resultItem } from "../../modules/result";
-import { ExchangeInfo } from "../../types/binance";
-import { FastValues } from "../../types/types";
-import { binanceAPIs, klinesParams } from "../../utils/binanceAPIs";
+import {
+    binanceAPIs,
+    candleSticType,
+    klinesParams,
+} from "../../utils/binanceAPIs";
 import { calculatorAPIs } from "../../utils/calculatorAPIs";
 import { TelegramAPIs } from "../../utils/telegramAPIs";
 import { Interval } from "../condition/ConditionItem";
@@ -57,11 +59,11 @@ const Monitoring = () => {
         let idx = 0;
         const res = _.intersection(...result).map(
             (m) =>
-            ({
-                id: idx++,
-                slowK: 0,
-                symbol: m,
-            } as resultItem)
+                ({
+                    id: idx++,
+                    slowK: 0,
+                    symbol: m,
+                } as resultItem)
         );
         dispatch(LoadAction(res));
         return res;
@@ -69,17 +71,25 @@ const Monitoring = () => {
 
     const findDatas = async () => {
         let symbols: string[] = await binanceAPIs.getAllSymbolNames();
-        //symbols = symbols.slice(0, 1);
 
-        const candleSticks = await Promise.all(
-            conditionItems.map(async (condition) => {
-                const params: klinesParams = {
-                    interval: condition.period,
-                    symbol: symbols,
-                    limit: condition.findCount,
-                };
-                return await binanceAPIs.getCandlestick(params);
-            })
+        const maxCount = conditionItems.reduce((prev, cur) => {
+            return Math.max(prev, cur.findCount);
+        }, 0);
+
+        const params: klinesParams = {
+            interval: conditionItems[0].period,
+            symbol: symbols,
+            limit: maxCount,
+        };
+
+        const candleStic = await binanceAPIs.getCandlestick(params);
+        let candleSticks: candleSticType[][] = conditionItems.reduce(
+            (prev, cur) => {
+                const c = candleStic.slice(maxCount - cur.findCount, maxCount);
+                prev.push(c);
+                return prev;
+            },
+            [] as candleSticType[][]
         );
 
         let datas = [];
@@ -90,8 +100,8 @@ const Monitoring = () => {
                     symbol: c.symbol,
                     values: calculatorAPIs.getFastK(
                         JSON.parse(c.v).data as [][],
-                        conditionItems[i].M,
-                        conditionItems[i].N
+                        conditionItems[i].N,
+                        conditionItems[i].M
                     ),
                 };
             });
@@ -114,19 +124,19 @@ const Monitoring = () => {
     const onClickMonitoringStart = () => {
         const monitoringPeriod =
             window.prompt("모니터링 주기를 입력해주세요 (단위 : 분)") || "-1";
-        let period = parseInt(monitoringPeriod);
-        const telegramAlertPeriod = window.prompt(
+        let searchPeriod = parseInt(monitoringPeriod);
+        const alertPeriod = window.prompt(
             "알림 주기를 설정해주세요 (단위 : 분)"
         );
-        if (monitoringPeriod && telegramAlertPeriod && period !== -1) {
+        if (monitoringPeriod && alertPeriod && searchPeriod !== -1) {
             if (running) {
                 alert("이미 동작중인 작업이 존재합니다.");
                 return;
             }
             running = true;
-            const timer = setInterval(async () => {
+            const searchTimer = setInterval(async () => {
                 if (running === false) {
-                    clearInterval(timer);
+                    clearInterval(searchTimer);
                     return;
                 }
                 //do things
@@ -134,7 +144,7 @@ const Monitoring = () => {
                 TelegramAPIs.sendMessage(
                     resultData.map((m) => m.symbol).join(", ")
                 );
-            }, period * 60000);
+            }, searchPeriod * 60000);
         } else {
             alert("취소가 선택되었습니다.");
         }

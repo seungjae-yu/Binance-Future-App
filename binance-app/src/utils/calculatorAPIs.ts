@@ -91,12 +91,16 @@ export namespace calculatorAPIs {
             result.fastK.push(+value.toPrecision(4));
         }
 
-        for (let i = M - 1; i < result.fastK.length; i++) {
+        for (let i = M - 1; i < result.fastK.length; i++) {            
             const sliced = result.fastK.slice(i - (M - 1), i + 1);
             const avg = sliced.reduce((sum, cur) => {
                 return sum + cur
             }, 0) / M;
             result.fastD.push(+avg.toPrecision(4));
+        }
+
+        if(result.fastK.length === 1) {
+            result.fastD.push(result.fastK[0]);
         }
 
         return result;
