@@ -151,8 +151,13 @@ const Monitoring = () => {
         let monitoringPeriodTime = parseInt(monitoringPeriod);
 
         const alertPeriod =
-            window.prompt("알림 주기를 설정해주세요 (단위 : 분)") || "-1";
+            window.prompt("중복 데이터를 얼마동안 받지 않으시겠습니까? (단위 : 분)") || "-1";
         let alertPeriodTime = parseInt(alertPeriod);
+
+        if (alertPeriodTime < monitoringPeriodTime || (alertPeriodTime % monitoringPeriodTime !== 0)) {
+            alert('값을 잘못 입력하셨습니다.');
+            return;
+        }
         xTimes = alertPeriodTime / monitoringPeriodTime;
         console.log(xTimes);
 
@@ -184,11 +189,8 @@ const Monitoring = () => {
                     .map((m) => m.symbol)
                     .filter((item) => compArr.indexOf(item) === -1);
 
-                TelegramAPIs.sendMessage(
-                    sendData.length === 0
-                        ? "새로 보낼 정보가 없습니다."
-                        : sendData.join(", ")
-                );
+                if (sendData.length > 0)
+                    TelegramAPIs.sendMessage(sendData.join(", "));
 
                 if (lastSentData.length === xTimes) lastSentData.shift();
                 lastSentData.push(resultData.map((m) => m.symbol));
