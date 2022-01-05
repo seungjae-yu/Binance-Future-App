@@ -99,10 +99,6 @@ export namespace calculatorAPIs {
             result.fastD.push(+avg.toPrecision(4));
         }
 
-        if(result.fastK.length === 1) {
-            result.fastD.push(result.fastK[0]);
-        }
-
         return result;
     }
 }

@@ -1,6 +1,6 @@
 import { Button, Grid } from "@material-ui/core";
 import _ from "lodash";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../modules";
 import { LoadAction, resultItem } from "../../modules/result";
@@ -11,6 +11,7 @@ import {
 } from "../../utils/binanceAPIs";
 import { calculatorAPIs } from "../../utils/calculatorAPIs";
 import { TelegramAPIs } from "../../utils/telegramAPIs";
+import { utils } from "../../utils/utils";
 import { Interval } from "../condition/ConditionItem";
 
 interface SearchResult {
@@ -22,6 +23,12 @@ interface SearchResult {
 
 const Monitoring = () => {
     let running: boolean = false;
+    let count = 0;
+    let lastSentData: string[][] = [];
+    let xTimes = 0;
+
+    //forTest
+    const [btnDisable, setBtnDisable] = useState(false);
 
     const { conditionItems } = useSelector(
         (state: RootState) => state.conditionReducer
@@ -30,7 +37,21 @@ const Monitoring = () => {
     const dispatch = useDispatch();
 
     const searchInfo = async () => {
-        const datas = await findDatas();
+        setBtnDisable(true);
+
+        const maxCount = conditionItems.reduce((prev, cur) => {
+            return Math.max(prev, cur.findCount);
+        }, 0);
+
+        const candleTime = conditionItems[0].period;
+
+        const weight = (maxCount >= 100 ? 2 : 1) * ((candleTime === Interval["10분"] || candleTime === Interval["2분"]) ? 2 : 1);
+
+        setTimeout(() => {
+            setBtnDisable(false);
+        }, 7500 * weight);
+
+        const datas = await findDatas(maxCount);
         let result: any[][] = [];
         for (let i = 0; i < datas.length; i++) {
             if (conditionItems[i].compareCond === "이상") {
@@ -59,22 +80,25 @@ const Monitoring = () => {
         let idx = 0;
         const res = _.intersection(...result).map(
             (m) =>
-                ({
-                    id: idx++,
-                    slowK: 0,
-                    symbol: m,
-                } as resultItem)
+            ({
+                id: idx++,
+                slowK: 0,
+                symbol: m,
+            } as resultItem)
         );
         dispatch(LoadAction(res));
+
         return res;
     };
 
-    const findDatas = async () => {
+    const findDatas = async (maxCount: number) => {
         let symbols: string[] = await binanceAPIs.getAllSymbolNames();
+        //for Test
+        //symbols = symbols.slice(10, 20);
 
-        const maxCount = conditionItems.reduce((prev, cur) => {
-            return Math.max(prev, cur.findCount);
-        }, 0);
+        // const maxCount = conditionItems.reduce((prev, cur) => {
+        //     return Math.max(prev, cur.findCount);
+        // }, 0);
 
         const params: klinesParams = {
             interval: conditionItems[0].period,
@@ -124,11 +148,20 @@ const Monitoring = () => {
     const onClickMonitoringStart = () => {
         const monitoringPeriod =
             window.prompt("모니터링 주기를 입력해주세요 (단위 : 분)") || "-1";
-        let searchPeriod = parseInt(monitoringPeriod);
-        const alertPeriod = window.prompt(
-            "알림 주기를 설정해주세요 (단위 : 분)"
-        );
-        if (monitoringPeriod && alertPeriod && searchPeriod !== -1) {
+        let monitoringPeriodTime = parseInt(monitoringPeriod);
+
+        const alertPeriod =
+            window.prompt("알림 주기를 설정해주세요 (단위 : 분)") || "-1";
+        let alertPeriodTime = parseInt(alertPeriod);
+        xTimes = alertPeriodTime / monitoringPeriodTime;
+        console.log(xTimes);
+
+        if (
+            monitoringPeriod &&
+            alertPeriod &&
+            monitoringPeriodTime !== -1 &&
+            alertPeriodTime !== -1
+        ) {
             if (running) {
                 alert("이미 동작중인 작업이 존재합니다.");
                 return;
@@ -141,10 +174,25 @@ const Monitoring = () => {
                 }
                 //do things
                 const resultData = await searchInfo();
+                count++;
+                if (count === xTimes) {
+                    count = 0;
+                }
+
+                const compArr = utils.concatArr(lastSentData);
+                const sendData = resultData
+                    .map((m) => m.symbol)
+                    .filter((item) => compArr.indexOf(item) === -1);
+
                 TelegramAPIs.sendMessage(
-                    resultData.map((m) => m.symbol).join(", ")
+                    sendData.length === 0
+                        ? "새로 보낼 정보가 없습니다."
+                        : sendData.join(", ")
                 );
-            }, searchPeriod * 60000);
+
+                if (lastSentData.length === xTimes) lastSentData.shift();
+                lastSentData.push(resultData.map((m) => m.symbol));
+            }, monitoringPeriodTime * 60000);
         } else {
             alert("취소가 선택되었습니다.");
         }
@@ -179,6 +227,7 @@ const Monitoring = () => {
                         variant="contained"
                         style={{ background: "#DDD1C7" }}
                         onClick={searchInfo}
+                        disabled={btnDisable}
                     >
                         조회
                     </Button>
