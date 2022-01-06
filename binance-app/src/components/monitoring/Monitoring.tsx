@@ -93,6 +93,8 @@ const Monitoring = () => {
 
     const findDatas = async (maxCount: number) => {
         let symbols: string[] = await binanceAPIs.getAllSymbolNames();
+        symbols = symbols.filter(s => s.endsWith("USDT"));
+
         //for Test
         //symbols = symbols.slice(10, 20);
 
