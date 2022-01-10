@@ -64,6 +64,13 @@ let testRes = [
         "200",
         "215"
     ],
+    [
+        13,
+        "215",
+        "230",
+        "200",
+        "220"
+    ],
 ];
 
 let testRes2 = [
@@ -275,6 +282,9 @@ let testRes3 = [
     ],
 ];
 
-let res = calculatorAPIs.getFastK(testRes3, 20, 5);
+// let res = calculatorAPIs.getFastK(testRes3, 20, 5);
 
-console.log(res);
+// console.log(res);
+
+let res2 = calculatorAPIs.getMovingAvg(testRes);
+console.log(res2);

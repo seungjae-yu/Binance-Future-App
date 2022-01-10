@@ -1,12 +1,12 @@
-export interface conditionType {
-    period: Interval;
+export interface conditionType extends commonType{
+    //period: Interval;
     candle?: number;
-    findCount: number;    
+    //findCount: number;    
     N: number;
     M: number;
     filter: keyof typeof FilterType;
-    compareVal: number;
-    compareCond: keyof typeof compareType;
+    //compareVal: number;
+    //compareCond: keyof typeof compareType;
 }
 
 export type ValueOf<T> = T[keyof T];
@@ -29,3 +29,18 @@ export interface resultType {
     symbol: string,
     slowK: number
 };
+
+export interface movingAvgType extends commonType{
+    // period: Interval;
+    // findCount : AvgLine;
+    //compareVal: AvgLine;
+    //compareCond: keyof typeof compareType;
+}
+
+export interface commonType {
+    period: Interval;
+    findCount: number | AvgLine;
+    compareVal?: number | AvgLine;
+    compareCond: keyof typeof compareType;
+}
+

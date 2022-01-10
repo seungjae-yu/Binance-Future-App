@@ -8,7 +8,9 @@ import {
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { RootState } from "../../modules";
 import { compareType, conditionType, ValueOf } from "../../types/types";
 
 const TodoItemBlock = styled.div`
@@ -59,12 +61,12 @@ interface compareOption {
     condition: keyof typeof compareType;
 }
 
-interface periodOption {
+export interface periodOption {
     title: string;
     condition: ValueOf<Interval>;
 }
 
-const periodOptions: periodOption[] = Object.entries(Interval).map(
+export const periodOptions: periodOption[] = Object.entries(Interval).map(
     ([title, condition]) => ({ title, condition })
 );
 
@@ -73,7 +75,7 @@ const filterConditions: filterOption[] = [
     { title: "slow %K", condition: "slow %K" },
 ];
 
-const compConditions: compareOption[] = [
+export const compConditions: compareOption[] = [
     { title: "이상", condition: "이상" },
     { title: "이하", condition: "이하" },
 ];
@@ -120,8 +122,12 @@ interface Props {
     onItemAdd(item: conditionType): void;
 }
 
-const ConditionItem = ({ onItemAdd }: Props) => {
+const SlowKConditionItem = ({ onItemAdd }: Props) => {
     const classes = useStyles();
+
+    const { conditionItems } = useSelector(
+        (state: RootState) => state.conditionReducer
+    );
 
     const [period, setPeriod] = useState<Interval>(); //주기
     //const [candle, setCandle] = useState(0); //봉전기준
@@ -165,6 +171,17 @@ const ConditionItem = ({ onItemAdd }: Props) => {
             compareCond: compareCond || "이상",
         };
         onItemAdd(item);
+    };
+
+    const onClickSave = () => {
+        const result = window.confirm("테이블의 정보를 저장하시겠습니까?");
+        if (result) {
+            localStorage.setItem(
+                "conditionItems",
+                JSON.stringify(conditionItems)
+            );
+            alert("정보를 저장했습니다.");
+        }
     };
 
     return (
@@ -289,17 +306,30 @@ const ConditionItem = ({ onItemAdd }: Props) => {
                     />
                 </Grid>
 
-                <Button
-                    size="large"
-                    variant="contained"
-                    color={"primary"}
-                    onClick={onClickAdd}
-                >
-                    추가
-                </Button>
+                <Grid item>
+                    <Button
+                        size="large"
+                        variant="contained"
+                        color={"primary"}
+                        onClick={onClickAdd}
+                    >
+                        추가
+                    </Button>
+                </Grid>
+
+                <Grid item>
+                    <Button
+                        size="large"
+                        variant="contained"
+                        style={{ background: "#DDD1C7" }}
+                        onClick={onClickSave}
+                    >
+                        저장
+                    </Button>
+                </Grid>
             </Grid>
         </TodoItemBlock>
     );
 };
 
-export default ConditionItem;
+export default SlowKConditionItem;

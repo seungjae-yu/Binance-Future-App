@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Interval } from "../components/condition/ConditionItem";
+import { Interval } from "../components/condition/SlowKConditionItem";
 import exchangeSymbol from '../config/exchangeInfo.json';
 import { ExchangeInfo } from "../types/binance";
 

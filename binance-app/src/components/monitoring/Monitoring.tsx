@@ -1,9 +1,10 @@
 import { Button, Grid } from "@material-ui/core";
 import _ from "lodash";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../modules";
-import { LoadAction, resultItem } from "../../modules/result";
+import { conditionItem } from "../../modules/condition";
+import { movingAvgItem } from "../../modules/movingAvg";
+import { resultItem } from "../../modules/result";
+import { commonType } from "../../types/types";
 import {
     binanceAPIs,
     candleSticType,
@@ -12,70 +13,238 @@ import {
 import { calculatorAPIs } from "../../utils/calculatorAPIs";
 import { TelegramAPIs } from "../../utils/telegramAPIs";
 import { utils } from "../../utils/utils";
-import { Interval } from "../condition/ConditionItem";
+import { AvgLine } from "../movingAvg/MovingAvgItem";
+import SearchRadio, { radioOptions } from "./SearchRadio";
 
-interface SearchResult {
-    symbol: string;
-    interval: Interval;
-    limit: number;
-    values: [];
+interface searchProps {
+    maxCount: number;
+    weight: any;
+    interval: any;
 }
 
-const Monitoring = () => {
+interface Props {
+    conditionItems: conditionItem[];
+    movingAvgItems: movingAvgItem[];
+    findSlowK(candleSticks: candleSticType[][]): Promise<
+        {
+            symbol: string;
+            values: calculatorAPIs.FastValues;
+        }[][]
+    >;
+    findMovingAvg(candleSticks: candleSticType[][]): Promise<
+        {
+            symbol: string;
+            values: calculatorAPIs.MovingAverageValues;
+        }[][]
+    >;
+    getAvgNameFunc(
+        cnt: string
+    ): "avg_5" | "avg_10" | "avg_20" | "avg_60" | "avg_120" | "avg_0";
+    setInfo(items: commonType[]): {
+        maxCount: number;
+        weight: number;
+        interval: any;
+    };
+    reduceCandleStickData(
+        candleStic: {
+            symbol: string;
+            v: string;
+        }[],
+        items: commonType[]
+    ): candleSticType[][];
+    settingResult(res: resultItem[]): void;
+}
+
+const Monitoring = ({
+    conditionItems,
+    movingAvgItems,
+    findSlowK,
+    findMovingAvg,
+    getAvgNameFunc,
+    setInfo,
+    reduceCandleStickData,
+    settingResult,
+}: Props) => {
     let running: boolean = false;
     let count = 0;
     let lastSentData: string[][] = [];
     let xTimes = 0;
 
-    //forTest
     const [btnDisable, setBtnDisable] = useState(false);
-
-    const { conditionItems } = useSelector(
-        (state: RootState) => state.conditionReducer
+    const [radioOption, setRadioOption] = useState<radioOptions>(
+        radioOptions.slowK
     );
 
-    const dispatch = useDispatch();
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const opt = (event.target as HTMLInputElement).value as radioOptions;
+        setRadioOption(radioOptions[opt]);
+    };
 
-    const searchInfo = async () => {
+    const searchData = async () => {
+        if (radioOption === radioOptions.slowK && conditionItems.length === 0) {
+            alert("slow K 조회 조건이 없습니다.");
+            return;
+        }
+
+        if (
+            radioOption === radioOptions.movingAvg &&
+            movingAvgItems.length === 0
+        ) {
+            alert("moving Average 조회 조건이 없습니다.");
+            return;
+        }
+
+        if (
+            radioOption === radioOptions.all &&
+            (conditionItems.length === 0 || movingAvgItems.length === 0)
+        ) {
+            alert("slow K 조회조건이나 moving Average 조회 조건이 없습니다.");
+            return;
+        }
+
+        const { maxCount, weight, interval } = {
+            maxCount: Math.max(
+                setInfo(conditionItems).maxCount,
+                setInfo(movingAvgItems).maxCount
+            ),
+            weight: Math.max(
+                setInfo(conditionItems).weight,
+                setInfo(movingAvgItems).weight
+            ),
+            interval: [
+                setInfo(conditionItems).interval,
+                setInfo(movingAvgItems).interval,
+            ],
+        };
+
+        if (radioOption === radioOptions.all && interval[0] !== interval[1]) {
+            alert("두 조회조건의 조회 주기가 다릅니다.");
+            return;
+        }
+
+        return await searchInfo({
+            maxCount: maxCount,
+            weight: weight,
+            interval: interval[0] || interval[1],
+        });
+    };
+
+    const searchInfo = async ({ maxCount, weight, interval }: searchProps) => {
         setBtnDisable(true);
 
-        const maxCount = conditionItems.reduce((prev, cur) => {
-            return Math.max(prev, cur.findCount);
-        }, 0);
+        let [isSlowK, isMovingAvg] = [false, false];
 
-        const candleTime = conditionItems[0].period;
+        if (radioOption === radioOptions.slowK) isSlowK = true;
+        else if (radioOption === radioOptions.movingAvg) isMovingAvg = true;
+        else if (radioOption === radioOptions.all) {
+            isSlowK = true;
+            isMovingAvg = true;
+        }
 
-        const weight = (maxCount >= 100 ? 2 : 1) * ((candleTime === Interval["10분"] || candleTime === Interval["2분"]) ? 2 : 1);
+        //1. symbol 가져옴
+        let symbols: string[] = await binanceAPIs.getAllSymbolNames();
+        symbols = symbols.filter((s) => s.endsWith("USDT"));
+        console.log(symbols.length);
 
         setTimeout(() => {
             setBtnDisable(false);
         }, 7500 * weight);
 
-        const datas = await findDatas(maxCount);
+        //5. 가져온정보 설정하기
+        const params: klinesParams = {
+            interval: interval,
+            symbol: symbols,
+            limit: maxCount,
+        };
+
+        const candleStic = await binanceAPIs.getCandlestick(params);
+
+        //slow K candle stick정보로 가공
+        let candleSticks_slowK: candleSticType[][] = reduceCandleStickData(
+            candleStic,
+            conditionItems
+        );
+
+        //moving avg 정보로 가공
+        let candleSticks_movingAvg: candleSticType[][] = reduceCandleStickData(
+            candleStic,
+            movingAvgItems
+        );
+
+        let slowK_result: any[][] = [];
+        let movingAvg_result: any[][] = [];
+
         let result: any[][] = [];
-        for (let i = 0; i < datas.length; i++) {
-            if (conditionItems[i].compareCond === "이상") {
-                result.push(
-                    datas[i]
-                        .filter(
-                            (d) =>
-                                d.values.fastD[d.values.fastD.length - 1] >=
-                                conditionItems[i].compareVal
-                        )
-                        .map((m) => m.symbol)
-                ); //(m => ({ symbol: m.symbol, slowK: m.values.fastD[m.values.fastD.length - 1] })));
-            } else if (conditionItems[i].compareCond === "이하") {
-                result.push(
-                    datas[i]
-                        .filter(
-                            (d) =>
-                                d.values.fastD[d.values.fastD.length - 1] <=
-                                conditionItems[i].compareVal
-                        )
-                        .map((m) => m.symbol)
-                );
+
+        if (isSlowK) {
+            const datas = await findSlowK(candleSticks_slowK);
+
+            //필터링
+            for (let i = 0; i < datas.length; i++) {
+                if (conditionItems[i].compareCond === "이상") {
+                    slowK_result.push(
+                        datas[i]
+                            .filter(
+                                (d) =>
+                                    d.values.fastD[d.values.fastD.length - 1] >=
+                                    conditionItems[i].compareVal
+                            )
+                            .map((m) => m.symbol)
+                    ); //(m => ({ symbol: m.symbol, slowK: m.values.fastD[m.values.fastD.length - 1] })));
+                } else if (conditionItems[i].compareCond === "이하") {
+                    slowK_result.push(
+                        datas[i]
+                            .filter(
+                                (d) =>
+                                    d.values.fastD[d.values.fastD.length - 1] <=
+                                    conditionItems[i].compareVal
+                            )
+                            .map((m) => m.symbol)
+                    );
+                }
             }
         }
+
+        if (isMovingAvg) {
+            const datas = await findMovingAvg(candleSticks_movingAvg);
+            // console.log('datas.length :' + datas[0].length);
+            // console.log(JSON.stringify(datas));
+            /*
+                 * symbol: "BTCUSDT"
+                    values:
+                    avg_5: 41689.91
+                    avg_10: 41700.47
+                 */
+            for (let i = 0; i < datas.length; i++) {
+                const itVal = movingAvgItems[i].findCount as AvgLine;
+                const compVal = movingAvgItems[i].compareVal as AvgLine;
+                if (movingAvgItems[i].compareCond === "이상") {
+                    movingAvg_result.push(
+                        datas[i]
+                            .filter(
+                                (d) =>
+                                    d.values[getAvgNameFunc(itVal)] >=
+                                    d.values[getAvgNameFunc(compVal)]
+                            )
+                            .map((m) => m.symbol)
+                    );
+                } else if (movingAvgItems[i].compareCond === "이하") {
+                    console.log(datas[i]);
+                    movingAvg_result.push(
+                        datas[i]
+                            .filter(
+                                (d) =>
+                                    d.values[getAvgNameFunc(itVal)] <=
+                                    d.values[getAvgNameFunc(compVal)]
+                            )
+                            .map((m) => m.symbol)
+                    );
+                }
+            }
+        }
+
+        result = slowK_result.concat(movingAvg_result);
+        result = result.filter((item, idx) => result.indexOf(item) === idx);
 
         let idx = 0;
         const res = _.intersection(...result).map(
@@ -86,65 +255,9 @@ const Monitoring = () => {
                 symbol: m,
             } as resultItem)
         );
-        dispatch(LoadAction(res));
 
+        settingResult(res);
         return res;
-    };
-
-    const findDatas = async (maxCount: number) => {
-        let symbols: string[] = await binanceAPIs.getAllSymbolNames();
-        symbols = symbols.filter(s => s.endsWith("USDT"));
-
-        //for Test
-        //symbols = symbols.slice(10, 20);
-
-        // const maxCount = conditionItems.reduce((prev, cur) => {
-        //     return Math.max(prev, cur.findCount);
-        // }, 0);
-
-        const params: klinesParams = {
-            interval: conditionItems[0].period,
-            symbol: symbols,
-            limit: maxCount,
-        };
-
-        const candleStic = await binanceAPIs.getCandlestick(params);
-        let candleSticks: candleSticType[][] = conditionItems.reduce(
-            (prev, cur) => {
-                const c = candleStic.slice(maxCount - cur.findCount, maxCount);
-                prev.push(c);
-                return prev;
-            },
-            [] as candleSticType[][]
-        );
-
-        let datas = [];
-
-        for (let i = 0; i < candleSticks.length; i++) {
-            const data = candleSticks[i].map((c) => {
-                return {
-                    symbol: c.symbol,
-                    values: calculatorAPIs.getFastK(
-                        JSON.parse(c.v).data as [][],
-                        conditionItems[i].N,
-                        conditionItems[i].M
-                    ),
-                };
-            });
-            datas.push(data);
-        }
-        return datas;
-    };
-
-    const saveConditionInfo = async () => {
-        const result = window.confirm("테이블의 정보를 저장하시겠습니까?");
-        if (result) {
-            localStorage.setItem(
-                "conditionItems",
-                JSON.stringify(conditionItems)
-            );
-            alert("정보를 저장했습니다.");
-        }
     };
 
     const onClickMonitoringStart = () => {
@@ -153,11 +266,16 @@ const Monitoring = () => {
         let monitoringPeriodTime = parseInt(monitoringPeriod);
 
         const alertPeriod =
-            window.prompt("중복 데이터를 얼마동안 받지 않으시겠습니까? (단위 : 분)") || "-1";
+            window.prompt(
+                "중복 데이터를 얼마동안 받지 않으시겠습니까? (단위 : 분)"
+            ) || "-1";
         let alertPeriodTime = parseInt(alertPeriod);
 
-        if (alertPeriodTime < monitoringPeriodTime || (alertPeriodTime % monitoringPeriodTime !== 0)) {
-            alert('값을 잘못 입력하셨습니다.');
+        if (
+            alertPeriodTime < monitoringPeriodTime ||
+            alertPeriodTime % monitoringPeriodTime !== 0
+        ) {
+            alert("값을 잘못 입력하셨습니다.");
             return;
         }
         xTimes = alertPeriodTime / monitoringPeriodTime;
@@ -180,7 +298,7 @@ const Monitoring = () => {
                     return;
                 }
                 //do things
-                const resultData = await searchInfo();
+                const resultData = (await searchData()) || [];
                 count++;
                 if (count === xTimes) {
                     count = 0;
@@ -226,26 +344,24 @@ const Monitoring = () => {
                 }}
             >
                 <Grid item>
-                    <Button
-                        size="large"
-                        variant="contained"
-                        style={{ background: "#DDD1C7" }}
-                        onClick={searchInfo}
-                        disabled={btnDisable}
-                    >
-                        조회
-                    </Button>
+                    <SearchRadio
+                        radioOption={radioOption}
+                        handleChange={handleChange}
+                    />
                 </Grid>
+
                 <Grid item>
                     <Button
                         size="large"
                         variant="contained"
                         style={{ background: "#DDD1C7" }}
-                        onClick={saveConditionInfo}
+                        onClick={searchData}
+                        disabled={btnDisable}
                     >
-                        정보 저장
+                        조회
                     </Button>
                 </Grid>
+
                 <Grid item>
                     <Button
                         size="large"

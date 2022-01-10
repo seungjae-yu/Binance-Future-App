@@ -1,12 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createGlobalStyle } from "styled-components";
 import GlobalTemplate from "./components/GlobalTemplate";
-import Monitoring from "./components/monitoring/Monitoring";
-import InfoTable from "./components/table/InfoTable";
+import RightSideTemplate from "./components/RightSideTemplate";
 import Title from "./components/Title";
-import ConditionItemContainer from "./container/ConditionItemContainer";
-import FilterTableContainer from "./container/FilterTableContainer";
-import InfoTableContainer from "./container/InfoTableContainer";
+import MonitoringContainer from "./container/mainPage/MonitoringContainer";
+import ResultTableContainer from "./container/mainPage/ResultTableContainer";
+import ShowConditionContainer from "./container/mainPage/ShowConditionContainer";
 
 const GlobalStype = createGlobalStyle`
     body{
@@ -16,15 +15,22 @@ const GlobalStype = createGlobalStyle`
 
 const App = () => {
     return (
-        <div>
+        // <Grid container spacing={1}>
+        //     <Grid item xs={11}>
+        <div style={{ display: "flex" }}>
             <GlobalStype />
-            <Title />
-            <GlobalTemplate>
-                <ConditionItemContainer />
-                <FilterTableContainer />
-                <InfoTableContainer />
-                <Monitoring />
-            </GlobalTemplate>
+            <div style={{ width: "97%" }}>
+                <Title />
+                <GlobalTemplate>
+                    <ResultTableContainer />
+                    <MonitoringContainer />
+                </GlobalTemplate>
+            </div>
+            <div style={{ width: "3%" }}>
+                <RightSideTemplate>
+                    <ShowConditionContainer />
+                </RightSideTemplate>
+            </div>
         </div>
     );
 };
