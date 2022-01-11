@@ -93,7 +93,7 @@ React.js / TypeScript
 
 
 ```
-Redux & Ducks Pattern
+Redux & Ducks Pattern / Immer (immutable library)
 ```
 
 ### UI
