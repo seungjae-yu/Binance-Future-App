@@ -69,7 +69,8 @@ binance-app/src/config 경로의 telegramInfo.json 파일에 token과 chat ID �
 
 ### 실행
 
-프로젝트 실행에 필요한 node_module 다운로드 및 실행
+프로젝트 실행에 필요한 node_module 다운로드 및 실행하는 과정이다.
+binance-app 폴더로 이동 후
 
 ```
 1. yarn (최초 실행시 느릴 수 있으며 이후에는 오래걸리지 않음)
