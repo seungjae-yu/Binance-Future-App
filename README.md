@@ -107,7 +107,7 @@ Material-UI / Styled Component / fa icons
 
 
 ```
-Telegram Bot API / Binance Future API(fapi)
+lodash / Telegram Bot API / Binance Future API(fapi)
 ```
 
 
