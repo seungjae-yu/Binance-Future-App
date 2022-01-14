@@ -1,4 +1,3 @@
-import React from "react";
 import { useDispatch } from "react-redux";
 import MovingAvgItem from "../../components/movingAvg/MovingAvgItem";
 import { CreateAction } from "../../modules/movingAvg";

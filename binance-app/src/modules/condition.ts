@@ -61,6 +61,6 @@ export function conditionReducer(
         }
 
         default :
-            return produce(state,draft=>{});
+            return produce(state, draft=> draft);
     }
 }

@@ -1,4 +1,3 @@
-import React from "react";
 import { createGlobalStyle } from "styled-components";
 import GlobalTemplate from "./components/GlobalTemplate";
 import RightSideTemplate from "./components/RightSideTemplate";
@@ -9,7 +8,7 @@ import ShowConditionContainer from "./container/mainPage/ShowConditionContainer"
 
 const GlobalStype = createGlobalStyle`
     body{
-        background: #e9ecef;
+        background: #c8d8e4;
     }
 `;
 
@@ -20,13 +19,16 @@ const App = () => {
         <div style={{ display: "flex" }}>
             <GlobalStype />
             <div style={{ width: "97%" }}>
-                <Title />
+                <Title
+                    title={"Binance Future App"}
+                    backgroundColor={"#2b6777"}
+                />
                 <GlobalTemplate>
                     <ResultTableContainer />
                     <MonitoringContainer />
                 </GlobalTemplate>
             </div>
-            <div style={{ width: "3%" }}>
+            <div style={{ width: "3%", backgroundColor: "#c8d8e4" }}>
                 <RightSideTemplate>
                     <ShowConditionContainer />
                 </RightSideTemplate>

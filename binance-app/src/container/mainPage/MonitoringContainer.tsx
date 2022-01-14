@@ -1,4 +1,3 @@
-import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Interval } from "../../components/condition/SlowKConditionItem";
 import Monitoring from "../../components/monitoring/Monitoring";
@@ -28,8 +27,8 @@ const MonitoringContainer = () => {
                     symbol: c.symbol,
                     values: calculatorAPIs.getFastK(
                         JSON.parse(c.v).data as [][],
-                        conditionItems[i].N,
-                        conditionItems[i].M
+                        conditionItems[i].N || 0,
+                        conditionItems[i].M || 0
                     ),
                 };
             });
@@ -112,8 +111,8 @@ const MonitoringContainer = () => {
         }[],
         items: commonType[]
     ): candleSticType[][] => {
-        return items.reduce((prev, cur) => {
-            const c = candleStic;//.slice(-+cur.findCount);
+        return items.reduce((prev) => {
+            const c = candleStic; //.slice(-+cur.findCount);
             prev.push(c);
             return prev;
         }, [] as candleSticType[][]);

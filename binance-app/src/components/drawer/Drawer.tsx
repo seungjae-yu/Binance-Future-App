@@ -1,16 +1,20 @@
-import { IconButton, Divider, Drawer } from "@material-ui/core";
-import { FilterList, TrendingUp } from "@material-ui/icons";
+import { IconButton, Divider, Drawer, Tooltip } from "@material-ui/core";
+import { FilterList, Save, TrendingUp } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import SlowKConditionItemContainer from "../../container/slowk/SlowKConditionItemContainer";
 import { LoadAction as LoadCondition } from "../../modules/condition";
 import { LoadAction as LoadMovingAvg } from "../../modules/movingAvg";
+import { LoadAction as LoadSearchList } from "../../modules/searchList";
 import { conditionType, movingAvgType } from "../../types/types";
 import { useDispatch } from "react-redux";
 import MovingAverageTableContainer from "../../container/movingAvg/MovingAverageTableContainer";
 import FilterTableContainer from "../../container/slowk/FilterTableContainer";
 import MovingAvgItemContainer from "../../container/movingAvg/MovingAvgItemContainer";
+import SaveSearchListTableContainer from "../../container/saveList/SaveSearchListTableContainer";
+import { SearchListItem } from "../../modules/searchList";
+import Title from "../Title";
 
 interface Props {
     value: string;
@@ -24,17 +28,21 @@ const useStyles = makeStyles({
     fullList: {
         width: "auto",
     },
+    paper: {
+        // backgroundColor: "#c8d8e4",
+    },
 });
 
-type Anchor = "filter" | "moving";
+type Anchor = "filter" | "moving" | "db";
 
-const ShowCondition = ({ value, handleChange }: Props) => {
+const ShowCondition = ({}: Props) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
     const [state, setState] = React.useState({
         filter: false,
         moving: false,
+        db: false,
     });
 
     useEffect(() => {
@@ -52,6 +60,14 @@ const ShowCondition = ({ value, handleChange }: Props) => {
                 movingAvgItems
             ) as movingAvgType[];
             dispatch(LoadMovingAvg(itemToJson));
+        }
+
+        let saveSearchList = localStorage.getItem("saveSearchLists");
+        if (saveSearchList) {
+            const itemToJSON: SearchListItem[] = JSON.parse(
+                saveSearchList
+            ) as SearchListItem[];
+            dispatch(LoadSearchList(itemToJSON));
         }
     }, []);
 
@@ -80,13 +96,26 @@ const ShowCondition = ({ value, handleChange }: Props) => {
         >
             {anchor === "filter" ? (
                 <div>
+                    <Title title={"Stochastic"} backgroundColor={"#2b6777"} />
                     <SlowKConditionItemContainer />
                     <FilterTableContainer />
                 </div>
-            ) : (
+            ) : anchor === "moving" ? (
                 <div>
+                    <Title
+                        title={"Moving Average"}
+                        backgroundColor={"#2b6777"}
+                    />
                     <MovingAvgItemContainer />
                     <MovingAverageTableContainer />
+                </div>
+            ) : (
+                <div>
+                    <Title
+                        title={"Saved Search List"}
+                        backgroundColor={"#2b6777"}
+                    />
+                    <SaveSearchListTableContainer />
                 </div>
             )}
             <Divider />
@@ -95,16 +124,25 @@ const ShowCondition = ({ value, handleChange }: Props) => {
 
     return (
         <div>
-            {(["filter", "moving"] as Anchor[]).map((anchor) => (
+            {(["filter", "moving", "db"] as Anchor[]).map((anchor) => (
                 <React.Fragment key={anchor}>
                     <IconButton onClick={toggleDrawer(anchor, true)}>
                         {anchor === "filter" ? (
-                            <FilterList fontSize={"large"} />
+                            <Tooltip title="스토캐스틱" placement="left" arrow>
+                                <FilterList fontSize={"large"} />
+                            </Tooltip>
+                        ) : anchor === "moving" ? (
+                            <Tooltip title="이동평균선" placement="left" arrow>
+                                <TrendingUp fontSize={"large"} />
+                            </Tooltip>
                         ) : (
-                            <TrendingUp fontSize={"large"} />
+                            <Tooltip title="저장 리스트" placement="left" arrow>
+                                <Save fontSize={"large"} />
+                            </Tooltip>
                         )}
                     </IconButton>
                     <Drawer
+                        classes={{ paper: classes.paper }}
                         anchor={"left"}
                         open={state[anchor]}
                         onClose={toggleDrawer(anchor, false)}

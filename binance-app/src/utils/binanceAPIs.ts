@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Interval } from "../components/condition/SlowKConditionItem";
-import exchangeSymbol from '../config/exchangeInfo.json';
 import { ExchangeInfo } from "../types/binance";
 
 export interface klinesParams {
@@ -44,13 +43,7 @@ export namespace binanceAPIs {
                 symbol: s,
                 v: JSON.stringify(result)
             }
-        }).filter((value, idx) => {
-            // if(params.interval === Interval["2분"] || params.interval === Interval["10분"]) {
-            //     if(idx % 2 === 1) return value;
-            //     else return undefined;
-            // } else {
-            //     return value;
-            // }
+        }).filter((_value, idx) => {            
             return (params.interval !== Interval["2분"] && params.interval !== Interval["10분"]) || (idx % 2 === 1);
         }));
 

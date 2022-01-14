@@ -7,10 +7,9 @@ import {
     Theme,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import styled from "styled-components";
-import { RootState } from "../../modules";
+import { conditionItem } from "../../modules/condition";
 import { compareType, conditionType, ValueOf } from "../../types/types";
 
 const TodoItemBlock = styled.div`
@@ -119,15 +118,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+    conditionItems: conditionItem[];
     onItemAdd(item: conditionType): void;
 }
 
-const SlowKConditionItem = ({ onItemAdd }: Props) => {
+const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
     const classes = useStyles();
-
-    const { conditionItems } = useSelector(
-        (state: RootState) => state.conditionReducer
-    );
 
     const [period, setPeriod] = useState<Interval>(); //주기
     //const [candle, setCandle] = useState(0); //봉전기준
@@ -138,21 +134,21 @@ const SlowKConditionItem = ({ onItemAdd }: Props) => {
     const [compareval, setCompareVal] = useState(0);
     const [compareCond, setCompareCond] = useState();
 
-    const handleChangePeriod = (event: any, value: any) => {
+    const handleChangePeriod = (_event: any, value: any) => {
         if (value) {
             setPeriod(value.condition);
         }
     };
 
-    const handleChangeFilter = (event: any, value: any) => {
+    const handleChangeFilter = (_event: any, value: any) => {
         setFilter(value?.condition || undefined);
     };
 
-    const handleChangeComp = (event: any, value: any) => {
+    const handleChangeComp = (_event: any, value: any) => {
         setCompareCond(value?.condition || undefined);
     };
 
-    const handleChangeNM = (event: any, value: any) => {
+    const handleChangeNM = (_event: any, value: any) => {
         if (value) {
             setN(value.N);
             setM(value.M);
@@ -310,7 +306,7 @@ const SlowKConditionItem = ({ onItemAdd }: Props) => {
                     <Button
                         size="large"
                         variant="contained"
-                        color={"primary"}
+                        style={{ background: "#52ab98", color: "white" }}
                         onClick={onClickAdd}
                     >
                         추가
@@ -321,7 +317,7 @@ const SlowKConditionItem = ({ onItemAdd }: Props) => {
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#DDD1C7" }}
+                        style={{ background: "#52ab98", color: "white" }}
                         onClick={onClickSave}
                     >
                         저장

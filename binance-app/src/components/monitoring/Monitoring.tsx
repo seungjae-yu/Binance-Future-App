@@ -1,6 +1,6 @@
 import { Button, Grid } from "@material-ui/core";
 import _ from "lodash";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { conditionItem } from "../../modules/condition";
 import { movingAvgItem } from "../../modules/movingAvg";
 import { resultItem } from "../../modules/result";
@@ -65,7 +65,6 @@ const Monitoring = ({
     reduceCandleStickData,
     settingResult,
 }: Props) => {
-    let running: boolean = false;
     let count = 0;
     let lastSentData: string[][] = [];
     let xTimes = 0;
@@ -74,6 +73,14 @@ const Monitoring = ({
     const [radioOption, setRadioOption] = useState<radioOptions>(
         radioOptions.slowK
     );
+    const [isRunning, setIsRunning] = useState(false);
+    const [searchTimer, setSearchTimer] = useState<any>();
+
+    useEffect(() => {
+        if (isRunning === false) {
+            clearInterval(searchTimer);
+        }
+    }, [isRunning, searchTimer]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const opt = (event.target as HTMLInputElement).value as radioOptions;
@@ -143,8 +150,7 @@ const Monitoring = ({
 
         //1. symbol 가져옴
         let symbols: string[] = await binanceAPIs.getAllSymbolNames();
-        symbols = symbols.filter((s) => s.endsWith("USDT"));
-        console.log(symbols.length);
+        symbols = symbols.filter((s) => s.endsWith("USDT"));//.slice(0, 1);
 
         setTimeout(() => {
             setBtnDisable(false);
@@ -207,8 +213,7 @@ const Monitoring = ({
 
         if (isMovingAvg) {
             const datas = await findMovingAvg(candleSticks_movingAvg);
-            // console.log('datas.length :' + datas[0].length);
-            // console.log(JSON.stringify(datas));
+            //console.log(JSON.stringify(datas));
             /*
                  * symbol: "BTCUSDT"
                     values:
@@ -229,7 +234,6 @@ const Monitoring = ({
                             .map((m) => m.symbol)
                     );
                 } else if (movingAvgItems[i].compareCond === "이하") {
-                    console.log(datas[i]);
                     movingAvg_result.push(
                         datas[i]
                             .filter(
@@ -287,34 +291,32 @@ const Monitoring = ({
             monitoringPeriodTime !== -1 &&
             alertPeriodTime !== -1
         ) {
-            if (running) {
-                alert("이미 동작중인 작업이 존재합니다.");
-                return;
-            }
-            running = true;
-            const searchTimer = setInterval(async () => {
-                if (running === false) {
-                    clearInterval(searchTimer);
-                    return;
-                }
-                //do things
-                const resultData = (await searchData()) || [];
-                count++;
-                if (count === xTimes) {
-                    count = 0;
-                }
+            // if (isRunning) {
+            //     alert("이미 동작중인 작업이 존재합니다.");
+            //     return;
+            // }
+            setIsRunning(true);
+            setSearchTimer(
+                setInterval(async () => {
+                    //do things
+                    const resultData = (await searchData()) || [];
+                    count++;
+                    if (count === xTimes) {
+                        count = 0;
+                    }
 
-                const compArr = utils.concatArr(lastSentData);
-                const sendData = resultData
-                    .map((m) => m.symbol)
-                    .filter((item) => compArr.indexOf(item) === -1);
+                    const compArr = utils.concatArr(lastSentData);
+                    const sendData = resultData
+                        .map((m) => m.symbol)
+                        .filter((item) => compArr.indexOf(item) === -1);
 
-                if (sendData.length > 0)
-                    TelegramAPIs.sendMessage(sendData.join(", "));
+                    if (sendData.length > 0)
+                        TelegramAPIs.sendMessage(sendData.join(", "));
 
-                if (lastSentData.length === xTimes) lastSentData.shift();
-                lastSentData.push(resultData.map((m) => m.symbol));
-            }, monitoringPeriodTime * 60000);
+                    if (lastSentData.length === xTimes) lastSentData.shift();
+                    lastSentData.push(resultData.map((m) => m.symbol));
+                }, monitoringPeriodTime * 60000)
+            );
         } else {
             alert("취소가 선택되었습니다.");
         }
@@ -323,11 +325,11 @@ const Monitoring = ({
     const onClickMonitoringStop = () => {
         const result = window.confirm("모니터링을 중지하시겠습니까?");
         if (result) {
-            if (!running) {
+            if (!isRunning) {
                 alert("동작중인 모니터링 작업이 존재하지 않습니다.");
                 return;
             }
-            running = false;
+            setIsRunning(false);
             alert("모니터링이 종료되었습니다.");
         }
     };
@@ -354,7 +356,7 @@ const Monitoring = ({
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#DDD1C7" }}
+                        style={{ background: !btnDisable ? "#52ab98" : "#808080", color: "white" }}
                         onClick={searchData}
                         disabled={btnDisable}
                     >
@@ -366,8 +368,12 @@ const Monitoring = ({
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#DDD1C7" }}
+                        style={{
+                            background: !isRunning ? "#52ab98" : "#808080",
+                            color: "white",
+                        }}
                         onClick={onClickMonitoringStart}
+                        disabled={isRunning}
                     >
                         모니터링 시작
                     </Button>
@@ -377,8 +383,12 @@ const Monitoring = ({
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#DDD1C7" }}
+                        style={{
+                            background: isRunning ? "#52ab98" : "#808080",
+                            color: "white",
+                        }}
                         onClick={onClickMonitoringStop}
+                        disabled={!isRunning}
                     >
                         모니터링 중지
                     </Button>

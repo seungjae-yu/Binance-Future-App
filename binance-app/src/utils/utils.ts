@@ -1,3 +1,4 @@
+import { Interval } from './../components/condition/SlowKConditionItem';
 export namespace utils {
     export function concatArr(arr : any[][]) {
         let newArr: any[] = [];
@@ -7,4 +8,10 @@ export namespace utils {
         return Array.from(new Set(newArr));
     }
     
+    export function getEnumIntervalByValue(value : string) {
+        const values: string[] = Object.values( Interval ).filter( v => v === v );
+        const keys: string[] = Object.keys( Interval ).filter( k => k === k );
+        const index: number = values.indexOf( value );
+        return keys[ index ];
+    }
 }

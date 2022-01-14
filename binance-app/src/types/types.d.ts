@@ -2,9 +2,9 @@ export interface conditionType extends commonType{
     //period: Interval;
     candle?: number;
     //findCount: number;    
-    N: number;
-    M: number;
-    filter: keyof typeof FilterType;
+    N?: number;
+    M?: number;
+    filter?: keyof typeof FilterType;
     //compareVal: number;
     //compareCond: keyof typeof compareType;
 }
@@ -38,9 +38,9 @@ export interface movingAvgType extends commonType{
 }
 
 export interface commonType {
-    period: Interval;
-    findCount: number | AvgLine;
+    period?: Interval;
+    findCount?: number | AvgLine;
     compareVal?: number | AvgLine;
-    compareCond: keyof typeof compareType;
+    compareCond?: keyof typeof compareType;
 }
 

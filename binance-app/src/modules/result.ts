@@ -35,6 +35,6 @@ export function resultReducer(
         }
 
         default:
-            return produce(state, draft => { });
+            return produce(state, draft => draft);
     }
 }

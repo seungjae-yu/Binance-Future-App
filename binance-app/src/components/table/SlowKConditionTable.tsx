@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     DataGrid,
     GridColDef,
@@ -7,6 +7,7 @@ import {
 import { IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { conditionItem } from "../../modules/condition";
+import { utils } from "../../utils/utils";
 
 interface Props {
     items: conditionItem[];
@@ -19,17 +20,15 @@ const SlowKConditionTable = ({ items, onRemove }: Props) => {
     const columns: GridColDef[] = [
         { field: "id", headerName: "ID", width: 100 },
         {
-            field: "period",
+            field: "times",
             headerName: "주기",
             width: 150,
             editable: true,
+            valueGetter: (params: GridValueGetterParams) =>
+                `${utils.getEnumIntervalByValue(
+                    params.getValue(params.id, "period")?.toString() || ""
+                )}`,
         },
-        // {
-        //     field: "candle",
-        //     headerName: "봉전 기준",
-        //     width: 150,
-        //     editable: true,
-        // },
         {
             field: "findCount",
             headerName: "조회 개수",
@@ -94,11 +93,11 @@ const SlowKConditionTable = ({ items, onRemove }: Props) => {
     ];
 
     return (
-        <div style={{ height: 320, width: "100%" }}>
+        <div style={{ height: 400, width: "100%" }}>
             <DataGrid
                 rows={items}
                 columns={columns}
-                pageSize={4}
+                pageSize={5}
                 checkboxSelection
                 disableSelectionOnClick
                 onSelectionModelChange={(ids) => {

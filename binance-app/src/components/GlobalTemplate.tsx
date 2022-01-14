@@ -1,9 +1,8 @@
-import React from "react";
 import styled from "styled-components";
 
 const GlobalTemplateBlock = styled.div`
     width: 100%;
-    height: 1100px;
+    height: 800px%;
 
     //position: relative;
     background: white;

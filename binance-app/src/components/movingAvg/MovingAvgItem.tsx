@@ -7,7 +7,7 @@ import {
     Theme,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { RootState } from "../../modules";
@@ -79,25 +79,25 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
     const [compareLine, setCompareLine] = useState<AvgLine>();
     const [compareCond, setCompareCond] = useState();
 
-    const handleChangePeriod = (event: any, value: any) => {
+    const handleChangePeriod = (_event: any, value: any) => {
         if (value) {
             setPeriod(value.condition);
         }
     };
 
-    const handleChangeCount = (event: any, value: any) => {
+    const handleChangeCount = (_event: any, value: any) => {
         if (value) {
             setCount(value.condition);
         }
     };
 
-    const handleChangeCompareLine = (event: any, value: any) => {
+    const handleChangeCompareLine = (_event: any, value: any) => {
         if (value) {
             setCompareLine(value.condition);
         }
     };
 
-    const handleChangeComp = (event: any, value: any) => {
+    const handleChangeComp = (_event: any, value: any) => {
         setCompareCond(value?.condition || undefined);
     };
 
@@ -204,7 +204,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                     <Button
                         size="large"
                         variant="contained"
-                        color={"primary"}
+                        style={{ background: "#52ab98", color: "white" }}
                         onClick={onClickAdd}
                     >
                         추가
@@ -215,7 +215,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#DDD1C7" }}
+                        style={{ background: "#52ab98", color: "white" }}
                         onClick={onClickSave}
                     >
                         저장

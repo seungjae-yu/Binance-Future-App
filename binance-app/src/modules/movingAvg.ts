@@ -61,6 +61,6 @@ export function movingAvgReducer(
         }
 
         default :
-            return produce(state,draft=>{});
+            return produce(state,draft=>draft);
     }
 }

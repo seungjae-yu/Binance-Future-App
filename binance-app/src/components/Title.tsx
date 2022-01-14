@@ -1,13 +1,17 @@
 import { AppBar, Toolbar, Typography } from "@material-ui/core";
-import React from "react";
 
-const Title = () => {
+interface Props {
+    title: string;
+    backgroundColor: string;
+}
+
+const Title = ({ title, backgroundColor }: Props) => {
     return (
-        <div>
-            <AppBar position="relative" style={{ background: "#4B4A67" }}>
+        <div style={{ marginBottom: "10px" }}>
+            <AppBar position="relative" style={{ background: backgroundColor }}>
                 <Toolbar>
                     <Typography component="h2" variant="h4">
-                        Binance Future App
+                        {title}
                     </Typography>
                 </Toolbar>
             </AppBar>
