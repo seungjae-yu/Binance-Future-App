@@ -79,13 +79,13 @@ binance-app 폴더로 이동 후
 
 
 
-## Deployment
+## Development
 
 ### Language & Framework
 
 
 ```
-React.js / TypeScript
+TypeScript / React.js
 ```
 
 
