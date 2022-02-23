@@ -18,8 +18,8 @@ export interface klinesParams {
 }
 
 export interface candleSticType {
-    symbol : string,
-    v : string;
+    symbol: string,
+    v: string;
 };
 
 export namespace binanceAPIs {
@@ -29,22 +29,22 @@ export namespace binanceAPIs {
     const klines = '/fapi/v1/klines';
 
     export async function getCandlestick(params: klinesParams) {
-        return Promise.all(params.symbol.map(async s => {
-            if(params.interval === Interval["2분"]) {
-                params.interval = Interval["1분"];
-                params.limit = params.limit * 2;
-            } else if(params.interval === Interval["10분"]) {
-                params.interval = Interval["5분"];
-                params.limit = params.limit * 2;
+        return await Promise.all(params.symbol.map(async s => {
+            let limit = params.limit;
+            let interval = params.interval;
+            if (params.interval === Interval["2분"]) {
+                interval = Interval["1분"];
+                limit = params.limit * 2;
+            } else if (params.interval === Interval["10분"]) {
+                interval = Interval["5분"];
+                limit = params.limit * 2;
             }
-            let url = BASE_URI + klines + `?symbol=${s}&interval=${params.interval}&limit=${params.limit}`;            
+            let url = BASE_URI + klines + `?symbol=${s}&interval=${interval}&limit=${limit}`;
             const result = await axios.get(url);
             return {
                 symbol: s,
                 v: JSON.stringify(result)
             }
-        }).filter((_value, idx) => {            
-            return (params.interval !== Interval["2분"] && params.interval !== Interval["10분"]) || (idx % 2 === 1);
         }));
 
     }

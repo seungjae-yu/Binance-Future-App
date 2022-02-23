@@ -4,7 +4,7 @@ import Monitoring from "../../components/monitoring/Monitoring";
 import { RootState } from "../../modules";
 import { LoadAction, resultItem } from "../../modules/result";
 import { commonType } from "../../types/types";
-import { candleSticType } from "../../utils/binanceAPIs";
+import { candleSticType, klinesParams } from "../../utils/binanceAPIs";
 import { calculatorAPIs } from "../../utils/calculatorAPIs";
 
 const MonitoringContainer = () => {
@@ -18,7 +18,7 @@ const MonitoringContainer = () => {
 
     const dispatch = useDispatch();
 
-    const findSlowK = async (candleSticks: candleSticType[][]) => {
+    const findSlowK = async (candleSticks: candleSticType[][], params: klinesParams) => {
         let datas = [];
 
         for (let i = 0; i < candleSticks.length; i++) {
@@ -28,16 +28,18 @@ const MonitoringContainer = () => {
                     values: calculatorAPIs.getFastK(
                         JSON.parse(c.v).data as [][],
                         conditionItems[i].N || 0,
-                        conditionItems[i].M || 0
+                        conditionItems[i].M || 0,
+                        params
                     ),
                 };
             });
+
             datas.push(data);
         }
         return datas;
     };
 
-    const findMovingAvg = async (candleSticks: candleSticType[][]) => {
+    const findMovingAvg = async (candleSticks: candleSticType[][], params: klinesParams) => {
         let datas = [];
 
         for (let i = 0; i < candleSticks.length; i++) {
@@ -45,7 +47,8 @@ const MonitoringContainer = () => {
                 return {
                     symbol: c.symbol,
                     values: calculatorAPIs.getMovingAvg(
-                        JSON.parse(c.v).data as [][]
+                        JSON.parse(c.v).data as [][],
+                        params
                     ),
                 };
             });

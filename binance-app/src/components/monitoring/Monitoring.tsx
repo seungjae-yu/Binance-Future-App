@@ -25,13 +25,13 @@ interface searchProps {
 interface Props {
     conditionItems: conditionItem[];
     movingAvgItems: movingAvgItem[];
-    findSlowK(candleSticks: candleSticType[][]): Promise<
+    findSlowK(candleSticks: candleSticType[][], params: klinesParams): Promise<
         {
             symbol: string;
             values: calculatorAPIs.FastValues;
         }[][]
     >;
-    findMovingAvg(candleSticks: candleSticType[][]): Promise<
+    findMovingAvg(candleSticks: candleSticType[][], params: klinesParams): Promise<
         {
             symbol: string;
             values: calculatorAPIs.MovingAverageValues;
@@ -183,7 +183,7 @@ const Monitoring = ({
         let result: any[][] = [];
 
         if (isSlowK) {
-            const datas = await findSlowK(candleSticks_slowK);
+            const datas = await findSlowK(candleSticks_slowK, params);
 
             //필터링
             for (let i = 0; i < datas.length; i++) {
@@ -195,7 +195,10 @@ const Monitoring = ({
                                     d.values.fastD[d.values.fastD.length - 1] >=
                                     conditionItems[i].compareVal
                             )
-                            .map((m) => m.symbol)
+                            .map((m) => {
+                                //console.log(JSON.stringify(m));
+                                return m.symbol;
+                            })
                     ); //(m => ({ symbol: m.symbol, slowK: m.values.fastD[m.values.fastD.length - 1] })));
                 } else if (conditionItems[i].compareCond === "이하") {
                     slowK_result.push(
@@ -212,7 +215,7 @@ const Monitoring = ({
         }
 
         if (isMovingAvg) {
-            const datas = await findMovingAvg(candleSticks_movingAvg);
+            const datas = await findMovingAvg(candleSticks_movingAvg, params);
             //console.log(JSON.stringify(datas));
             /*
                  * symbol: "BTCUSDT"

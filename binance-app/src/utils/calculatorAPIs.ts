@@ -1,3 +1,6 @@
+import { Interval } from "../components/condition/SlowKConditionItem";
+import { klinesParams } from "./binanceAPIs";
+
 export namespace calculatorAPIs {
 
     export interface prices {
@@ -13,14 +16,14 @@ export namespace calculatorAPIs {
     };
 
     export interface MovingAverageValues {
-        avg_0 : number,
-        avg_5 : number,
-        avg_10 : number,
-        avg_20 : number,
-        avg_60 : number,
-        avg_120 : number
+        avg_0: number,
+        avg_5: number,
+        avg_10: number,
+        avg_20: number,
+        avg_60: number,
+        avg_120: number
     };
-    
+
     /* 
       [
         1499040000000,      // Open time
@@ -83,8 +86,11 @@ export namespace calculatorAPIs {
         return price;
     }
 
-    export function getFastK(pricesInfo: any[], N: number, M: number) {
+    export function getFastK(pricesInfo: any[], N: number, M: number, params: klinesParams) {
         let price = getPrices(pricesInfo);
+        if (params.interval === Interval["10분"] || params.interval === Interval["2분"]) {
+            price = price.filter((_val, idx) => idx % 2 === 1);
+        }
         let result: FastValues = {
             fastK: [],
             fastD: []
@@ -100,7 +106,7 @@ export namespace calculatorAPIs {
             result.fastK.push(+value.toPrecision(4));
         }
 
-        for (let i = M - 1; i < result.fastK.length; i++) {            
+        for (let i = M - 1; i < result.fastK.length; i++) {
             const sliced = result.fastK.slice(i - (M - 1), i + 1);
             const avg = getAverage(sliced);
             result.fastD.push(+avg.toPrecision(4));
@@ -109,39 +115,42 @@ export namespace calculatorAPIs {
         return result;
     }
 
-    export function getMovingAvg(pricesInfo: any[]) {
+    export function getMovingAvg(pricesInfo: any[], params: klinesParams) {
         let price = getPrices(pricesInfo);
-        let result : MovingAverageValues = {
-            avg_0 : -1,
-            avg_5 : -1,
-            avg_10 : -1,
-            avg_20 : -1,
-            avg_60 : -1,
-            avg_120 : -1
+        if (params.interval === Interval["10분"] || params.interval === Interval["2분"]) {
+            price = price.filter((_val, idx) => idx % 2 === 1);
+        }
+        let result: MovingAverageValues = {
+            avg_0: -1,
+            avg_5: -1,
+            avg_10: -1,
+            avg_20: -1,
+            avg_60: -1,
+            avg_120: -1
         };
         const len = price.length;
 
-        switch(true) {
-            case len >= 120 : {
+        switch (true) {
+            case len >= 120: {
                 result.avg_120 = getAverage(price.slice(-120).map(m => m.close));
             }
-            case len >= 60 : {
+            case len >= 60: {
                 result.avg_60 = getAverage(price.slice(-60).map(m => m.close));
             }
-            case len >= 20 : {
+            case len >= 20: {
                 result.avg_20 = getAverage(price.slice(-20).map(m => m.close));
             }
-            case len >= 10 : {
+            case len >= 10: {
                 result.avg_10 = getAverage(price.slice(-10).map(m => m.close));
             }
-            case len >= 5 : {
+            case len >= 5: {
                 result.avg_5 = getAverage(price.slice(-5).map(m => m.close));
             }
         }
         return result;
     }
 
-    export function getAverage(arr : number[]) {
+    export function getAverage(arr: number[]) {
         const len = arr.length;
         return arr.reduce((sum, cur) => {
             return sum + cur
