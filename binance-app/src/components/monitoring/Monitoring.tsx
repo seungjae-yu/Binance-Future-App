@@ -14,6 +14,7 @@ import { calculatorAPIs } from "../../utils/calculatorAPIs";
 import { TelegramAPIs } from "../../utils/telegramAPIs";
 import { utils } from "../../utils/utils";
 import { AvgLine } from "../movingAvg/MovingAvgItem";
+import { TelegramInfo } from "../telegram/TelegramInfo";
 import SearchRadio, { radioOptions } from "./SearchRadio";
 
 interface searchProps {
@@ -25,13 +26,19 @@ interface searchProps {
 interface Props {
     conditionItems: conditionItem[];
     movingAvgItems: movingAvgItem[];
-    findSlowK(candleSticks: candleSticType[][], params: klinesParams): Promise<
+    findSlowK(
+        candleSticks: candleSticType[][],
+        params: klinesParams
+    ): Promise<
         {
             symbol: string;
             values: calculatorAPIs.FastValues;
         }[][]
     >;
-    findMovingAvg(candleSticks: candleSticType[][], params: klinesParams): Promise<
+    findMovingAvg(
+        candleSticks: candleSticType[][],
+        params: klinesParams
+    ): Promise<
         {
             symbol: string;
             values: calculatorAPIs.MovingAverageValues;
@@ -40,7 +47,9 @@ interface Props {
     getAvgNameFunc(
         cnt: string
     ): "avg_5" | "avg_10" | "avg_20" | "avg_60" | "avg_120" | "avg_0";
-    setInfo(items: commonType[]): {
+    setInfo(
+        items: commonType[]
+    ): {
         maxCount: number;
         weight: number;
         interval: any;
@@ -150,7 +159,7 @@ const Monitoring = ({
 
         //1. symbol 가져옴
         let symbols: string[] = await binanceAPIs.getAllSymbolNames();
-        symbols = symbols.filter((s) => s.endsWith("USDT"));//.slice(0, 1);
+        symbols = symbols.filter((s) => s.endsWith("USDT")); //.slice(0, 1);
 
         setTimeout(() => {
             setBtnDisable(false);
@@ -256,11 +265,11 @@ const Monitoring = ({
         let idx = 0;
         const res = _.intersection(...result).map(
             (m) =>
-            ({
-                id: idx++,
-                slowK: 0,
-                symbol: m,
-            } as resultItem)
+                ({
+                    id: idx++,
+                    slowK: 0,
+                    symbol: m,
+                } as resultItem)
         );
 
         settingResult(res);
@@ -313,8 +322,20 @@ const Monitoring = ({
                         .map((m) => m.symbol)
                         .filter((item) => compArr.indexOf(item) === -1);
 
-                    if (sendData.length > 0)
-                        TelegramAPIs.sendMessage(sendData.join(", "));
+                    if (sendData.length > 0) {
+                        const telegramInfo = localStorage.getItem(
+                            "telegramInfo"
+                        );
+                        if (telegramInfo) {
+                            const telegramInfoJson: TelegramInfo = JSON.parse(
+                                telegramInfo
+                            );
+                            TelegramAPIs.sendMessage(
+                                sendData.join(", "),
+                                telegramInfoJson
+                            );
+                        }
+                    }
 
                     if (lastSentData.length === xTimes) lastSentData.shift();
                     lastSentData.push(resultData.map((m) => m.symbol));
@@ -359,7 +380,10 @@ const Monitoring = ({
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: !btnDisable ? "#52ab98" : "#808080", color: "white" }}
+                        style={{
+                            background: !btnDisable ? "#52ab98" : "#808080",
+                            color: "white",
+                        }}
                         onClick={searchData}
                         disabled={btnDisable}
                     >

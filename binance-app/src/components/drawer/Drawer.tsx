@@ -1,5 +1,5 @@
 import { IconButton, Divider, Drawer, Tooltip } from "@material-ui/core";
-import { FilterList, Save, TrendingUp } from "@material-ui/icons";
+import { FilterList, Save, TrendingUp, Call } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { useEffect } from "react";
@@ -15,6 +15,7 @@ import MovingAvgItemContainer from "../../container/movingAvg/MovingAvgItemConta
 import SaveSearchListTableContainer from "../../container/saveList/SaveSearchListTableContainer";
 import { SearchListItem } from "../../modules/searchList";
 import Title from "../Title";
+import TelegramInfoContainer from "../../container/telegram/TelegramInfoContainer";
 
 interface Props {
     value: string;
@@ -33,7 +34,7 @@ const useStyles = makeStyles({
     },
 });
 
-type Anchor = "filter" | "moving" | "db";
+type Anchor = "filter" | "moving" | "db" | "telegram";
 
 const ShowCondition = ({}: Props) => {
     const classes = useStyles();
@@ -43,6 +44,7 @@ const ShowCondition = ({}: Props) => {
         filter: false,
         moving: false,
         db: false,
+        telegram: false,
     });
 
     useEffect(() => {
@@ -71,19 +73,19 @@ const ShowCondition = ({}: Props) => {
         }
     }, []);
 
-    const toggleDrawer =
-        (anchor: Anchor, open: boolean) =>
-        (event: React.KeyboardEvent | React.MouseEvent) => {
-            if (
-                event.type === "keydown" &&
-                ((event as React.KeyboardEvent).key === "Tab" ||
-                    (event as React.KeyboardEvent).key === "Shift")
-            ) {
-                return;
-            }
+    const toggleDrawer = (anchor: Anchor, open: boolean) => (
+        event: React.KeyboardEvent | React.MouseEvent
+    ) => {
+        if (
+            event.type === "keydown" &&
+            ((event as React.KeyboardEvent).key === "Tab" ||
+                (event as React.KeyboardEvent).key === "Shift")
+        ) {
+            return;
+        }
 
-            setState({ ...state, [anchor]: open });
-        };
+        setState({ ...state, [anchor]: open });
+    };
 
     const list = (anchor: Anchor) => (
         <div
@@ -109,13 +111,21 @@ const ShowCondition = ({}: Props) => {
                     <MovingAvgItemContainer />
                     <MovingAverageTableContainer />
                 </div>
-            ) : (
+            ) : anchor === "db" ? (
                 <div>
                     <Title
                         title={"Saved Search List"}
                         backgroundColor={"#2b6777"}
                     />
                     <SaveSearchListTableContainer />
+                </div>
+            ) : (
+                <div>
+                    <Title
+                        title={"Telegram Info"}
+                        backgroundColor={"#2b6777"}
+                    />
+                    <TelegramInfoContainer />
                 </div>
             )}
             <Divider />
@@ -124,33 +134,55 @@ const ShowCondition = ({}: Props) => {
 
     return (
         <div>
-            {(["filter", "moving", "db"] as Anchor[]).map((anchor) => (
-                <React.Fragment key={anchor}>
-                    <IconButton onClick={toggleDrawer(anchor, true)}>
-                        {anchor === "filter" ? (
-                            <Tooltip title="스토캐스틱" placement="left" arrow>
-                                <FilterList fontSize={"large"} />
-                            </Tooltip>
-                        ) : anchor === "moving" ? (
-                            <Tooltip title="이동평균선" placement="left" arrow>
-                                <TrendingUp fontSize={"large"} />
-                            </Tooltip>
-                        ) : (
-                            <Tooltip title="저장 리스트" placement="left" arrow>
-                                <Save fontSize={"large"} />
-                            </Tooltip>
-                        )}
-                    </IconButton>
-                    <Drawer
-                        classes={{ paper: classes.paper }}
-                        anchor={"left"}
-                        open={state[anchor]}
-                        onClose={toggleDrawer(anchor, false)}
-                    >
-                        {list(anchor)}
-                    </Drawer>
-                </React.Fragment>
-            ))}
+            {(["filter", "moving", "db", "telegram"] as Anchor[]).map(
+                (anchor) => (
+                    <React.Fragment key={anchor}>
+                        <IconButton onClick={toggleDrawer(anchor, true)}>
+                            {anchor === "filter" ? (
+                                <Tooltip
+                                    title="스토캐스틱"
+                                    placement="left"
+                                    arrow
+                                >
+                                    <FilterList fontSize={"large"} />
+                                </Tooltip>
+                            ) : anchor === "moving" ? (
+                                <Tooltip
+                                    title="이동평균선"
+                                    placement="left"
+                                    arrow
+                                >
+                                    <TrendingUp fontSize={"large"} />
+                                </Tooltip>
+                            ) : anchor === "db" ? (
+                                <Tooltip
+                                    title="저장 리스트"
+                                    placement="left"
+                                    arrow
+                                >
+                                    <Save fontSize={"large"} />
+                                </Tooltip>
+                            ) : (
+                                <Tooltip
+                                    title="텔레그램 정보"
+                                    placement="left"
+                                    arrow
+                                >
+                                    <Call fontSize={"large"} />
+                                </Tooltip>
+                            )}
+                        </IconButton>
+                        <Drawer
+                            classes={{ paper: classes.paper }}
+                            anchor={"left"}
+                            open={state[anchor]}
+                            onClose={toggleDrawer(anchor, false)}
+                        >
+                            {list(anchor)}
+                        </Drawer>
+                    </React.Fragment>
+                )
+            )}
         </div>
     );
 };
