@@ -24,7 +24,7 @@ export interface candleSticType {
 
 export namespace binanceAPIs {
 
-    const BASE_URI = `http://fapi.binance.com`;
+    const BASE_URI = `https://fapi.binance.com`;
     const allExchange = '/fapi/v1/exchangeInfo';
     const klines = '/fapi/v1/klines';
 
