@@ -66,7 +66,7 @@ npm i -g yarn
 ```
 모니터링 정보를 텔레그램으로 받기 위해서는 temegram bot의 token과 chat ID가 필요
 참고 : https://gabrielkim.tistory.com/entry/Telegram-Bot-Token-%EB%B0%8F-Chat-Id-%EC%96%BB%EA%B8%B0
-binance-app/src/config 경로의 telegramInfo.json 파일에 token과 chat ID 입력
+web 실행후 Telegram 정보 설정에 token과 chat ID 입력
 ```
 
 ## Running
