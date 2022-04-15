@@ -2,7 +2,7 @@ import { IconButton, Divider, Drawer, Tooltip } from "@material-ui/core";
 import { FilterList, Save, TrendingUp, Call } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import SlowKConditionItemContainer from "../../container/slowk/SlowKConditionItemContainer";
 import { LoadAction as LoadCondition } from "../../modules/condition";
 import { LoadAction as LoadMovingAvg } from "../../modules/movingAvg";
@@ -22,21 +22,21 @@ interface Props {
     handleChange(event: React.ChangeEvent<HTMLInputElement>): void;
 }
 
-const useStyles = makeStyles({
-    list: {
-        width: 1350,
-    },
-    fullList: {
-        width: "auto",
-    },
-    paper: {
-        // backgroundColor: "#c8d8e4",
-    },
-});
-
 type Anchor = "filter" | "moving" | "db" | "telegram";
 
 const ShowCondition = ({}: Props) => {
+    const useStyles = makeStyles({
+        list: {
+            width: 1350,
+        },
+        fullList: {
+            width: "auto",
+        },
+        paper: {
+            // backgroundColor: "#c8d8e4",
+        },
+    });
+
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -73,63 +73,70 @@ const ShowCondition = ({}: Props) => {
         }
     }, []);
 
-    const toggleDrawer = (anchor: Anchor, open: boolean) => (
-        event: React.KeyboardEvent | React.MouseEvent
-    ) => {
-        if (
-            event.type === "keydown" &&
-            ((event as React.KeyboardEvent).key === "Tab" ||
-                (event as React.KeyboardEvent).key === "Shift")
-        ) {
-            return;
-        }
+    const toggleDrawer = useCallback(
+        (anchor: Anchor, open: boolean) => (
+            event: React.KeyboardEvent | React.MouseEvent
+        ) => {
+            if (
+                event.type === "keydown" &&
+                ((event as React.KeyboardEvent).key === "Tab" ||
+                    (event as React.KeyboardEvent).key === "Shift")
+            ) {
+                return;
+            }
 
-        setState({ ...state, [anchor]: open });
-    };
+            setState({ ...state, [anchor]: open });
+        },
+        [state]
+    );
 
-    const list = (anchor: Anchor) => (
-        <div
-            className={clsx(classes.list, {
-                [classes.fullList]: false,
-            })}
-            role="presentation"
-            onClick={toggleDrawer(anchor, true)}
-            // onKeyDown={toggleDrawer(anchor, false)}
-        >
-            {anchor === "filter" ? (
-                <div>
-                    <Title title={"Stochastic"} backgroundColor={"#2b6777"} />
-                    <SlowKConditionItemContainer />
-                    <FilterTableContainer />
-                </div>
-            ) : anchor === "moving" ? (
-                <div>
-                    <Title
-                        title={"Moving Average"}
-                        backgroundColor={"#2b6777"}
-                    />
-                    <MovingAvgItemContainer />
-                    <MovingAverageTableContainer />
-                </div>
-            ) : anchor === "db" ? (
-                <div>
-                    <Title
-                        title={"Saved Search List"}
-                        backgroundColor={"#2b6777"}
-                    />
-                    <SaveSearchListTableContainer />
-                </div>
-            ) : (
-                <div>
-                    <Title
-                        title={"Telegram Info"}
-                        backgroundColor={"#2b6777"}
-                    />
-                    <TelegramInfoContainer />
-                </div>
-            )}
-            <Divider />
-        </div>
+    const list = useCallback(
+        (anchor: Anchor) => (
+            <div
+                className={clsx(classes.list, {
+                    [classes.fullList]: false,
+                })}
+                role="presentation"
+            >
+                {anchor === "filter" ? (
+                    <div>
+                        <Title
+                            title={"Stochastic"}
+                            backgroundColor={"#2b6777"}
+                        />
+                        <SlowKConditionItemContainer />
+                        <FilterTableContainer />
+                    </div>
+                ) : anchor === "moving" ? (
+                    <div>
+                        <Title
+                            title={"Moving Average"}
+                            backgroundColor={"#2b6777"}
+                        />
+                        <MovingAvgItemContainer />
+                        <MovingAverageTableContainer />
+                    </div>
+                ) : anchor === "db" ? (
+                    <div>
+                        <Title
+                            title={"Saved Search List"}
+                            backgroundColor={"#2b6777"}
+                        />
+                        <SaveSearchListTableContainer />
+                    </div>
+                ) : (
+                    <div>
+                        <Title
+                            title={"Telegram Info"}
+                            backgroundColor={"#2b6777"}
+                        />
+                        <TelegramInfoContainer />
+                    </div>
+                )}
+                <Divider />
+            </div>
+        ),
+        [state]
     );
 
     return (
