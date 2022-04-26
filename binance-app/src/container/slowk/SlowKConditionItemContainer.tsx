@@ -1,3 +1,5 @@
+import React from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SlowKConditionItem from "../../components/condition/SlowKConditionItem";
 import { RootState } from "../../modules";
@@ -11,9 +13,12 @@ const SlowKConditionItemContainer = () => {
 
     const dispatch = useDispatch();
 
-    const onItemAdd = (item: conditionType) => {
-        dispatch(CreateAction(item));
-    };
+    const onItemAdd = useCallback(
+        (item: conditionType) => {
+            dispatch(CreateAction(item));
+        },
+        [dispatch]
+    );
 
     return (
         <SlowKConditionItem
@@ -23,4 +28,4 @@ const SlowKConditionItemContainer = () => {
     );
 };
 
-export default SlowKConditionItemContainer;
+export default React.memo(SlowKConditionItemContainer);

@@ -1,3 +1,4 @@
+import React from "react";
 import { createGlobalStyle } from "styled-components";
 import GlobalTemplate from "./components/GlobalTemplate";
 import RightSideTemplate from "./components/RightSideTemplate";
@@ -12,23 +13,31 @@ const GlobalStype = createGlobalStyle`
     }
 `;
 
+const AppDivStyle = {
+    display: "flex",
+};
+
+const MainDivStyle = {
+    width: "97%",
+};
+
+const DrawDivStyle = {
+    width: "3%",
+    backgroundColor: "#c8d8e4",
+};
+
 const App = () => {
     return (
-        // <Grid container spacing={1}>
-        //     <Grid item xs={11}>
-        <div style={{ display: "flex" }}>
+        <div style={AppDivStyle}>
             <GlobalStype />
-            <div style={{ width: "97%" }}>
-                <Title
-                    title={"Binance Future App"}
-                    backgroundColor={"#2b6777"}
-                />
+            <div style={MainDivStyle}>
+                <Title title={"Binance Future App"} />
                 <GlobalTemplate>
                     <ResultTableContainer />
                     <MonitoringContainer />
                 </GlobalTemplate>
             </div>
-            <div style={{ width: "3%", backgroundColor: "#c8d8e4" }}>
+            <div style={DrawDivStyle}>
                 <RightSideTemplate>
                     <ShowConditionContainer />
                 </RightSideTemplate>
@@ -37,4 +46,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default React.memo(App);

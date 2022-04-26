@@ -7,6 +7,8 @@ import {
     Theme,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import React from "react";
+import { useCallback } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -79,29 +81,29 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
     const [compareLine, setCompareLine] = useState<AvgLine>();
     const [compareCond, setCompareCond] = useState();
 
-    const handleChangePeriod = (_event: any, value: any) => {
+    const handleChangePeriod = useCallback((_event: any, value: any) => {
         if (value) {
             setPeriod(value.condition);
         }
-    };
+    }, []);
 
-    const handleChangeCount = (_event: any, value: any) => {
+    const handleChangeCount = useCallback((_event: any, value: any) => {
         if (value) {
             setCount(value.condition);
         }
-    };
+    }, []);
 
-    const handleChangeCompareLine = (_event: any, value: any) => {
+    const handleChangeCompareLine = useCallback((_event: any, value: any) => {
         if (value) {
             setCompareLine(value.condition);
         }
-    };
+    }, []);
 
-    const handleChangeComp = (_event: any, value: any) => {
+    const handleChangeComp = useCallback((_event: any, value: any) => {
         setCompareCond(value?.condition || undefined);
-    };
+    }, []);
 
-    const onClickAdd = () => {
+    const onClickAdd = useCallback(() => {
         let item: movingAvgType = {
             period: period,
             findCount: count,
@@ -109,9 +111,9 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
             compareCond: compareCond || "이상",
         };
         onItemAdd(item);
-    };
+    }, [period, count, compareLine, compareCond, onItemAdd]);
 
-    const onClickSave = () => {
+    const onClickSave = useCallback(() => {
         const result = window.confirm("테이블의 정보를 저장하시겠습니까?");
         if (result) {
             localStorage.setItem(
@@ -120,6 +122,11 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
             );
             alert("정보를 저장했습니다.");
         }
+    }, [movingAvgItems]);
+
+    const buttonStyle = {
+        background: "#52ab98",
+        color: "white",
     };
 
     return (
@@ -138,9 +145,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangePeriod(event, value)
-                        }
+                        onChange={handleChangePeriod}
                     />
                 </Grid>
                 <Grid item>
@@ -156,9 +161,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangeCount(event, value)
-                        }
+                        onChange={handleChangeCount}
                     />
                 </Grid>
 
@@ -175,9 +178,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangeCompareLine(event, value)
-                        }
+                        onChange={handleChangeCompareLine}
                     />
                 </Grid>
 
@@ -194,9 +195,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangeComp(event, value)
-                        }
+                        onChange={handleChangeComp}
                     />
                 </Grid>
 
@@ -204,7 +203,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#52ab98", color: "white" }}
+                        style={buttonStyle}
                         onClick={onClickAdd}
                     >
                         추가
@@ -215,7 +214,7 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
                     <Button
                         size="large"
                         variant="contained"
-                        style={{ background: "#52ab98", color: "white" }}
+                        style={buttonStyle}
                         onClick={onClickSave}
                     >
                         저장
@@ -226,4 +225,4 @@ const MovingAvgItem = ({ onItemAdd }: Props) => {
     );
 };
 
-export default MovingAvgItem;
+export default React.memo(MovingAvgItem);

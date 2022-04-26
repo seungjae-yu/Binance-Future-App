@@ -10,6 +10,8 @@ import {
     Tooltip,
 } from "@material-ui/core";
 import { CloudDownload, CloudUpload } from "@material-ui/icons";
+import React from "react";
+import { useCallback } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../modules";
@@ -41,42 +43,40 @@ const SaveSearchListDialog = ({
         (state: RootState) => state.searchListRedurcer
     );
 
-    const onClickSaveList = () => {
+    const onClickSaveList = useCallback(() => {
         const itemName = window.prompt("저장할 이름을 입력해주세요.") || "";
-        console.log(itemName);
+
         if (itemName) {
             addListItem(list, itemName);
             alert(itemName + " 항목이 저장되었습니다.");
         }
-    };
+    }, [list, addListItem]);
 
-    const handleClickOpen = () => {
+    const handleClickOpen = useCallback(() => {
         setSelectedItem(undefined);
         setOpenDialog(true);
-    };
+    }, []);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setOpenDialog(false);
-    };
+    }, []);
 
-    const handleImport = () => {
+    const handleImport = useCallback(() => {
         setOpenDialog(false);
         if (selectedItem) {
             importItem(selectedItem);
         }
+    }, [importItem]);
+
+    const style = {
+        display: "flex",
+        justifyContent: "flex-end",
+        marginRight: "5px",
+        marginBottom: "5px",
     };
 
     return (
-        <Grid
-            container
-            spacing={2}
-            style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginRight: "5px",
-                marginBottom: "5px",
-            }}
-        >
+        <Grid container spacing={2} style={style}>
             <Tooltip title="저장하기" placement="top" arrow>
                 <IconButton onClick={onClickSaveList}>
                     <CloudUpload fontSize={"large"} />
@@ -129,4 +129,4 @@ const SaveSearchListDialog = ({
     );
 };
 
-export default SaveSearchListDialog;
+export default React.memo(SaveSearchListDialog);

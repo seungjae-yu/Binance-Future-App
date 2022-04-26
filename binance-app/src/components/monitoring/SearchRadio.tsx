@@ -50,4 +50,4 @@ const SearchRadio = ({ radioOption, handleChange }: Props) => {
     );
 };
 
-export default SearchRadio;
+export default React.memo(SearchRadio);

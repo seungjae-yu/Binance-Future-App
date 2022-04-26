@@ -1,3 +1,5 @@
+import React from "react";
+import { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Interval } from "../../components/condition/SlowKConditionItem";
 import Monitoring from "../../components/monitoring/Monitoring";
@@ -18,46 +20,52 @@ const MonitoringContainer = () => {
 
     const dispatch = useDispatch();
 
-    const findSlowK = async (candleSticks: candleSticType[][], params: klinesParams) => {
-        let datas = [];
+    const findSlowK = useCallback(
+        async (candleSticks: candleSticType[][], params: klinesParams) => {
+            let datas = [];
 
-        for (let i = 0; i < candleSticks.length; i++) {
-            const data = candleSticks[i].map((c) => {
-                return {
-                    symbol: c.symbol,
-                    values: calculatorAPIs.getFastK(
-                        JSON.parse(c.v).data as [][],
-                        conditionItems[i].N || 0,
-                        conditionItems[i].M || 0,
-                        params
-                    ),
-                };
-            });
+            for (let i = 0; i < candleSticks.length; i++) {
+                const data = candleSticks[i].map((c) => {
+                    return {
+                        symbol: c.symbol,
+                        values: calculatorAPIs.getFastK(
+                            JSON.parse(c.v).data as [][],
+                            conditionItems[i].N || 0,
+                            conditionItems[i].M || 0,
+                            params
+                        ),
+                    };
+                });
 
-            datas.push(data);
-        }
-        return datas;
-    };
+                datas.push(data);
+            }
+            return datas;
+        },
+        [conditionItems]
+    );
 
-    const findMovingAvg = async (candleSticks: candleSticType[][], params: klinesParams) => {
-        let datas = [];
+    const findMovingAvg = useCallback(
+        async (candleSticks: candleSticType[][], params: klinesParams) => {
+            let datas = [];
 
-        for (let i = 0; i < candleSticks.length; i++) {
-            const data = candleSticks[i].map((c) => {
-                return {
-                    symbol: c.symbol,
-                    values: calculatorAPIs.getMovingAvg(
-                        JSON.parse(c.v).data as [][],
-                        params
-                    ),
-                };
-            });
-            datas.push(data);
-        }
-        return datas;
-    };
+            for (let i = 0; i < candleSticks.length; i++) {
+                const data = candleSticks[i].map((c) => {
+                    return {
+                        symbol: c.symbol,
+                        values: calculatorAPIs.getMovingAvg(
+                            JSON.parse(c.v).data as [][],
+                            params
+                        ),
+                    };
+                });
+                datas.push(data);
+            }
+            return datas;
+        },
+        []
+    );
 
-    const getAvgNameFunc = (cnt: string) => {
+    const getAvgNameFunc = useCallback((cnt: string) => {
         switch (cnt) {
             case "5":
                 return "avg_5";
@@ -72,9 +80,9 @@ const MonitoringContainer = () => {
             default:
                 return "avg_0";
         }
-    };
+    }, []);
 
-    const setInfo = (items: commonType[]) => {
+    const setInfo = useCallback((items: commonType[]) => {
         if (items.length === 0) {
             return {
                 maxCount: -1,
@@ -105,21 +113,24 @@ const MonitoringContainer = () => {
             weight: weight,
             interval: candleTime,
         };
-    };
+    }, []);
 
-    const reduceCandleStickData = (
-        candleStic: {
-            symbol: string;
-            v: string;
-        }[],
-        items: commonType[]
-    ): candleSticType[][] => {
-        return items.reduce((prev) => {
-            const c = candleStic; //.slice(-+cur.findCount);
-            prev.push(c);
-            return prev;
-        }, [] as candleSticType[][]);
-    };
+    const reduceCandleStickData = useCallback(
+        (
+            candleStic: {
+                symbol: string;
+                v: string;
+            }[],
+            items: commonType[]
+        ): candleSticType[][] => {
+            return items.reduce((prev) => {
+                const c = candleStic; //.slice(-+cur.findCount);
+                prev.push(c);
+                return prev;
+            }, [] as candleSticType[][]);
+        },
+        []
+    );
 
     const settingResult = (res: resultItem[]) => {
         dispatch(LoadAction(res));
@@ -139,4 +150,4 @@ const MonitoringContainer = () => {
     );
 };
 
-export default MonitoringContainer;
+export default React.memo(MonitoringContainer);

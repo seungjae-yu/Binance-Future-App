@@ -1,4 +1,5 @@
 import { Grid } from "@material-ui/core";
+import React from "react";
 import { useSelector } from "react-redux";
 import ResultTable from "../../components/table/ResultTable";
 import { RootState } from "../../modules";
@@ -15,4 +16,4 @@ const ResultTableContainer = () => {
     );
 };
 
-export default ResultTableContainer;
+export default React.memo(ResultTableContainer);

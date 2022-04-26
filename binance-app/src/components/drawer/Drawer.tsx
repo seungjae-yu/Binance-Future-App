@@ -17,14 +17,9 @@ import { SearchListItem } from "../../modules/searchList";
 import Title from "../Title";
 import TelegramInfoContainer from "../../container/telegram/TelegramInfoContainer";
 
-interface Props {
-    value: string;
-    handleChange(event: React.ChangeEvent<HTMLInputElement>): void;
-}
-
 type Anchor = "filter" | "moving" | "db" | "telegram";
 
-const ShowCondition = ({}: Props) => {
+const ShowCondition = () => {
     const useStyles = makeStyles({
         list: {
             width: 1350,
@@ -71,22 +66,21 @@ const ShowCondition = ({}: Props) => {
             ) as SearchListItem[];
             dispatch(LoadSearchList(itemToJSON));
         }
-    }, []);
+    }, [dispatch]);
 
     const toggleDrawer = useCallback(
-        (anchor: Anchor, open: boolean) => (
-            event: React.KeyboardEvent | React.MouseEvent
-        ) => {
-            if (
-                event.type === "keydown" &&
-                ((event as React.KeyboardEvent).key === "Tab" ||
-                    (event as React.KeyboardEvent).key === "Shift")
-            ) {
-                return;
-            }
+        (anchor: Anchor, open: boolean) =>
+            (event: React.KeyboardEvent | React.MouseEvent) => {
+                if (
+                    event.type === "keydown" &&
+                    ((event as React.KeyboardEvent).key === "Tab" ||
+                        (event as React.KeyboardEvent).key === "Shift")
+                ) {
+                    return;
+                }
 
-            setState({ ...state, [anchor]: open });
-        },
+                setState({ ...state, [anchor]: open });
+            },
         [state]
     );
 
@@ -100,43 +94,31 @@ const ShowCondition = ({}: Props) => {
             >
                 {anchor === "filter" ? (
                     <div>
-                        <Title
-                            title={"Stochastic"}
-                            backgroundColor={"#2b6777"}
-                        />
+                        <Title title={"Stochastic"} />
                         <SlowKConditionItemContainer />
                         <FilterTableContainer />
                     </div>
                 ) : anchor === "moving" ? (
                     <div>
-                        <Title
-                            title={"Moving Average"}
-                            backgroundColor={"#2b6777"}
-                        />
+                        <Title title={"Moving Average"} />
                         <MovingAvgItemContainer />
                         <MovingAverageTableContainer />
                     </div>
                 ) : anchor === "db" ? (
                     <div>
-                        <Title
-                            title={"Saved Search List"}
-                            backgroundColor={"#2b6777"}
-                        />
+                        <Title title={"Saved Search List"} />
                         <SaveSearchListTableContainer />
                     </div>
                 ) : (
                     <div>
-                        <Title
-                            title={"Telegram Info"}
-                            backgroundColor={"#2b6777"}
-                        />
+                        <Title title={"Telegram Info"} />
                         <TelegramInfoContainer />
                     </div>
                 )}
                 <Divider />
             </div>
         ),
-        [state]
+        [classes]
     );
 
     return (
@@ -194,4 +176,4 @@ const ShowCondition = ({}: Props) => {
     );
 };
 
-export default ShowCondition;
+export default React.memo(ShowCondition);

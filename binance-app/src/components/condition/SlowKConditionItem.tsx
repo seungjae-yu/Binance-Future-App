@@ -7,6 +7,8 @@ import {
     Theme,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import React from "react";
+import { useCallback } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import { conditionItem } from "../../modules/condition";
@@ -70,7 +72,6 @@ export const periodOptions: periodOption[] = Object.entries(Interval).map(
 );
 
 const filterConditions: filterOption[] = [
-    // { title: "slow %D", condition: "slow %D" },
     { title: "slow %K", condition: "slow %K" },
 ];
 
@@ -134,28 +135,36 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
     const [compareval, setCompareVal] = useState(0);
     const [compareCond, setCompareCond] = useState();
 
-    const handleChangePeriod = (_event: any, value: any) => {
+    const handleChangePeriod = useCallback((_event: any, value: any) => {
         if (value) {
             setPeriod(value.condition);
         }
-    };
+    }, []);
 
-    const handleChangeFilter = (_event: any, value: any) => {
+    const handleChangeFindCount = useCallback((event: any) => {
+        setFindCount(parseInt(event.target.value));
+    }, []);
+
+    const handleChangeFilter = useCallback((_event: any, value: any) => {
         setFilter(value?.condition || undefined);
-    };
+    }, []);
 
-    const handleChangeComp = (_event: any, value: any) => {
+    const handleChangeComp = useCallback((_event: any, value: any) => {
         setCompareCond(value?.condition || undefined);
-    };
+    }, []);
 
-    const handleChangeNM = (_event: any, value: any) => {
+    const handleChangeNM = useCallback((_event: any, value: any) => {
         if (value) {
             setN(value.N);
             setM(value.M);
         }
-    };
+    }, []);
 
-    const onClickAdd = () => {
+    const handleChangeCompareVal = useCallback((event: any) => {
+        setCompareVal(parseInt(event.target.value));
+    }, []);
+
+    const onClickAdd = useCallback(() => {
         let item: conditionType = {
             period: period,
             // candle: candle,
@@ -167,9 +176,9 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
             compareCond: compareCond || "이상",
         };
         onItemAdd(item);
-    };
+    }, [period, findCount, N, M, filter, compareval, compareCond, onItemAdd]);
 
-    const onClickSave = () => {
+    const onClickSave = useCallback(() => {
         const result = window.confirm("테이블의 정보를 저장하시겠습니까?");
         if (result) {
             localStorage.setItem(
@@ -178,7 +187,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
             );
             alert("정보를 저장했습니다.");
         }
-    };
+    }, [conditionItems]);
 
     return (
         <TodoItemBlock className={classes.root}>
@@ -196,9 +205,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangePeriod(event, value)
-                        }
+                        onChange={handleChangePeriod}
                     />
                 </Grid>
                 {/* <Grid item>
@@ -224,9 +231,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
                             shrink: true,
                         }}
                         style={{ margin: "3px" }}
-                        onChange={(event) =>
-                            setFindCount(parseInt(event.target.value))
-                        }
+                        onChange={handleChangeFindCount}
                     />
                 </Grid>
 
@@ -243,9 +248,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangeNM(event, value)
-                        }
+                        onChange={handleChangeNM}
                     />
                 </Grid>
 
@@ -262,9 +265,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangeFilter(event, value)
-                        }
+                        onChange={handleChangeFilter}
                     />
                 </Grid>
 
@@ -277,9 +278,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
                             shrink: true,
                         }}
                         style={{ margin: "3px" }}
-                        onChange={(event) =>
-                            setCompareVal(parseInt(event.target.value))
-                        }
+                        onChange={handleChangeCompareVal}
                     />
                 </Grid>
 
@@ -296,9 +295,7 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
                                 variant="outlined"
                             />
                         )}
-                        onChange={(event, value) =>
-                            handleChangeComp(event, value)
-                        }
+                        onChange={handleChangeComp}
                     />
                 </Grid>
 
@@ -328,4 +325,4 @@ const SlowKConditionItem = ({ conditionItems, onItemAdd }: Props) => {
     );
 };
 
-export default SlowKConditionItem;
+export default React.memo(SlowKConditionItem);

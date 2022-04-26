@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components";
 
 const RightSideTemplateBlock = styled.div`
@@ -21,4 +22,4 @@ const RightSideTemplate = ({ children }: any) => {
     return <RightSideTemplateBlock>{children}</RightSideTemplateBlock>;
 };
 
-export default RightSideTemplate;
+export default React.memo(RightSideTemplate);

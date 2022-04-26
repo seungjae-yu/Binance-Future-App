@@ -8,6 +8,7 @@ import { useState } from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { SearchListItem } from "../../modules/searchList";
 import { utils } from "../../utils/utils";
+import React from "react";
 
 interface Props {
     items: SearchListItem[];
@@ -47,13 +48,6 @@ const SaveSearchListTable = ({
             width: 150,
             editable: true,
         },
-        // {
-        //     field: "findCount",
-        //     headerName: "조회 개수",
-        //     // type: "number",
-        //     width: 150,
-        //     editable: true,
-        // },
     ];
 
     if (isRemove) {
@@ -76,12 +70,16 @@ const SaveSearchListTable = ({
         });
     }
 
+    const style = {
+        height: 400,
+        width: "100%",
+    };
+
     return (
-        <div style={{ height: 400, width: "100%" }}>
+        <div style={style}>
             <DataGrid
                 rows={items}
                 columns={columns}
-                pageSize={5}
                 checkboxSelection
                 hideFooterSelectedRowCount
                 selectionModel={selectionModel}
@@ -103,16 +101,14 @@ const SaveSearchListTable = ({
                             setSelectedItem(
                                 items.filter((item) => item.id === arr[0])
                             );
-                            //setSelectedItem(items[arr[0]]);
                         } else {
                             setSelectedItem(undefined);
                         }
                     }
                 }}
-            //style={{ borderColor: "#2b6777", borderWidth: "1px" }}
             />
         </div>
     );
 };
 
-export default SaveSearchListTable;
+export default React.memo(SaveSearchListTable);

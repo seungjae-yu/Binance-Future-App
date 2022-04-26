@@ -1,3 +1,5 @@
+import React from "react";
+import { useCallback } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SaveSearchListTable from "../../components/table/SaveSearchListTable";
@@ -18,9 +20,12 @@ const SaveSearchListTableContainer = () => {
         );
     }, [searchListItems]);
 
-    const onRemove = (selectionModel: any[]) => {
-        dispatch(RemoveAction(selectionModel));
-    };
+    const onRemove = useCallback(
+        (selectionModel: any[]) => {
+            dispatch(RemoveAction(selectionModel));
+        },
+        [dispatch]
+    );
 
     return (
         <SaveSearchListTable
@@ -31,4 +36,4 @@ const SaveSearchListTableContainer = () => {
     );
 };
 
-export default SaveSearchListTableContainer;
+export default React.memo(SaveSearchListTableContainer);

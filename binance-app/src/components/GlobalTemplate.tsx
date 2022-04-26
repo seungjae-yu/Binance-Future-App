@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components";
 
 const GlobalTemplateBlock = styled.div`
@@ -21,4 +22,4 @@ const GlobalTemplate = ({ children }: any) => {
     return <GlobalTemplateBlock>{children}</GlobalTemplateBlock>;
 };
 
-export default GlobalTemplate;
+export default React.memo(GlobalTemplate);

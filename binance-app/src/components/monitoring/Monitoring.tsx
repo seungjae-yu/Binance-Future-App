@@ -1,6 +1,7 @@
 import { Button, Grid } from "@material-ui/core";
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { conditionItem } from "../../modules/condition";
 import { movingAvgItem } from "../../modules/movingAvg";
 import { resultItem } from "../../modules/result";
@@ -14,7 +15,7 @@ import { calculatorAPIs } from "../../utils/calculatorAPIs";
 import { TelegramAPIs } from "../../utils/telegramAPIs";
 import { utils } from "../../utils/utils";
 import { AvgLine } from "../movingAvg/MovingAvgItem";
-import { TelegramInfo } from "../telegram/TelegramInfo";
+import { TelegramInfos } from "../telegram/TelegramInfo";
 import SearchRadio, { radioOptions } from "./SearchRadio";
 
 interface searchProps {
@@ -47,9 +48,7 @@ interface Props {
     getAvgNameFunc(
         cnt: string
     ): "avg_5" | "avg_10" | "avg_20" | "avg_60" | "avg_120" | "avg_0";
-    setInfo(
-        items: commonType[]
-    ): {
+    setInfo(items: commonType[]): {
         maxCount: number;
         weight: number;
         interval: any;
@@ -91,10 +90,14 @@ const Monitoring = ({
         }
     }, [isRunning, searchTimer]);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const opt = (event.target as HTMLInputElement).value as radioOptions;
-        setRadioOption(radioOptions[opt]);
-    };
+    const handleChange = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const opt = (event.target as HTMLInputElement)
+                .value as radioOptions;
+            setRadioOption(radioOptions[opt]);
+        },
+        []
+    );
 
     const searchData = async () => {
         if (radioOption === radioOptions.slowK && conditionItems.length === 0) {
@@ -323,13 +326,11 @@ const Monitoring = ({
                         .filter((item) => compArr.indexOf(item) === -1);
 
                     if (sendData.length > 0) {
-                        const telegramInfo = localStorage.getItem(
-                            "telegramInfo"
-                        );
+                        const telegramInfo =
+                            localStorage.getItem("telegramInfo");
                         if (telegramInfo) {
-                            const telegramInfoJson: TelegramInfo = JSON.parse(
-                                telegramInfo
-                            );
+                            const telegramInfoJson: TelegramInfos =
+                                JSON.parse(telegramInfo);
                             TelegramAPIs.sendMessage(
                                 sendData.join(", "),
                                 telegramInfoJson
@@ -425,4 +426,4 @@ const Monitoring = ({
     );
 };
 
-export default Monitoring;
+export default React.memo(Monitoring);

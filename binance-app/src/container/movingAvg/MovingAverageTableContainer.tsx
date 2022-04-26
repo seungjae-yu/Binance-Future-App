@@ -1,4 +1,6 @@
 import { Grid } from "@material-ui/core";
+import React from "react";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SaveSearchListDialog from "../../components/saveListDialog/SaveSearchListDialog";
 import MovingAverageTable from "../../components/table/MovingAverageTable";
@@ -19,43 +21,52 @@ const MovingAverageTableContainer = () => {
         (state: RootState) => state.movingAvgReducer
     );
 
-    const onRemove = (selectionModel: any[]) => {
-        dispatch(RemoveAction(selectionModel));
-    };
+    const onRemove = useCallback(
+        (selectionModel: any[]) => {
+            dispatch(RemoveAction(selectionModel));
+        },
+        [dispatch]
+    );
 
-    const addListItem = (
-        list: (movingAvgItem | conditionItem)[],
-        itemName: string
-    ) => {
-        const getItem = localStorage.getItem("saveSearchLists");
-        console.log(getItem);
-        if (getItem) {
-            const searchList = JSON.parse(getItem) as SearchListItem[];
-            searchList.push({
-                id: searchList.length + 1,
-                name: itemName,
-                searchList: list,
-                type: "이동평균선",
-                period: list[0].period,
-            });
-            dispatch(
-                AddAction({
-                    searchList: list,
+    const addListItem = useCallback(
+        (list: (movingAvgItem | conditionItem)[], itemName: string) => {
+            const getItem = localStorage.getItem("saveSearchLists");
+            console.log(getItem);
+            if (getItem) {
+                const searchList = JSON.parse(getItem) as SearchListItem[];
+                searchList.push({
+                    id: searchList.length + 1,
                     name: itemName,
+                    searchList: list,
                     type: "이동평균선",
                     period: list[0].period,
-                })
-            );
-            localStorage.setItem("saveSearchLists", JSON.stringify(searchList));
-        }
-    };
+                });
+                dispatch(
+                    AddAction({
+                        searchList: list,
+                        name: itemName,
+                        type: "이동평균선",
+                        period: list[0].period,
+                    })
+                );
+                localStorage.setItem(
+                    "saveSearchLists",
+                    JSON.stringify(searchList)
+                );
+            }
+        },
+        [dispatch]
+    );
 
-    const importItem = (item: SearchListItem[]) => {
-        if (item) {
-            const data = item[0].searchList as movingAvgType[];
-            dispatch(LoadAction(data));
-        }
-    };
+    const importItem = useCallback(
+        (item: SearchListItem[]) => {
+            if (item) {
+                const data = item[0].searchList as movingAvgType[];
+                dispatch(LoadAction(data));
+            }
+        },
+        [dispatch]
+    );
 
     return (
         <Grid container style={{ marginTop: "20px", marginBottom: "45px" }}>
@@ -70,4 +81,4 @@ const MovingAverageTableContainer = () => {
     );
 };
 
-export default MovingAverageTableContainer;
+export default React.memo(MovingAverageTableContainer);

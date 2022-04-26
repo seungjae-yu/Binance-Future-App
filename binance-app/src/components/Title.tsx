@@ -1,14 +1,21 @@
 import { AppBar, Toolbar, Typography } from "@material-ui/core";
+import React from "react";
 
 interface Props {
     title: string;
-    backgroundColor: string;
+    //backgroundColor: string;
 }
 
-const Title = ({ title, backgroundColor }: Props) => {
+const TitleStyle = {
+    marginBottom: "10px",
+};
+
+const backgroundColor = { background: "#2b6777" };
+
+const Title = ({ title }: Props) => {
     return (
-        <div style={{ marginBottom: "10px" }}>
-            <AppBar position="relative" style={{ background: backgroundColor }}>
+        <div style={TitleStyle}>
+            <AppBar position="relative" style={backgroundColor}>
                 <Toolbar>
                     <Typography component="h2" variant="h4">
                         {title}
@@ -19,4 +26,4 @@ const Title = ({ title, backgroundColor }: Props) => {
     );
 };
 
-export default Title;
+export default React.memo(Title);
