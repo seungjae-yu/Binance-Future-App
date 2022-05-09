@@ -132,9 +132,9 @@ const MonitoringContainer = () => {
         []
     );
 
-    const settingResult = (res: resultItem[]) => {
+    const settingResult = useCallback((res: resultItem[]) => {
         dispatch(LoadAction(res));
-    };
+    }, []);
 
     return (
         <Monitoring

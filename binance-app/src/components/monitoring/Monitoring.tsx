@@ -86,7 +86,7 @@ const Monitoring = ({
 
     useEffect(() => {
         if (isRunning === false) {
-            clearInterval(searchTimer);
+            clearTimeout(searchTimer);
         }
     }, [isRunning, searchTimer]);
 
@@ -312,7 +312,7 @@ const Monitoring = ({
             // }
             setIsRunning(true);
             setSearchTimer(
-                setInterval(async () => {
+                setTimeout(async function search() {
                     //do things
                     const resultData = (await searchData()) || [];
                     count++;
@@ -340,6 +340,7 @@ const Monitoring = ({
 
                     if (lastSentData.length === xTimes) lastSentData.shift();
                     lastSentData.push(resultData.map((m) => m.symbol));
+                    setTimeout(search, monitoringPeriodTime * 60000);
                 }, monitoringPeriodTime * 60000)
             );
         } else {
