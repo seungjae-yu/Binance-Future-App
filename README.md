@@ -87,7 +87,7 @@ binance-app 폴더로 이동 후
 
 ## Development
 
-### Language & Framework
+### Language & Library
 
 
 ```
